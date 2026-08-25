@@ -538,6 +538,26 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
+        // ฟังก์ชันสำหรับดึงข้อมูลจาก Google Sheet มาซิงค์ในเครื่อง
+async function fetchDataFromGoogleSheets() {
+    const webAppUrl = localStorage.getItem('webAppUrl');
+    if (!webAppUrl) return;
+
+    try {
+        const response = await fetch(webAppUrl);
+        const result = await response.json();
+
+        if (result.result === 'success' && Array.isArray(result.data)) {
+            // บันทึกข้อมูลที่ดึงได้ลง localStorage และอัปเดตการแสดงผล
+            localStorage.setItem('appRecords', JSON.stringify(result.data));
+            renderSummary();
+            renderHistoryTable();
+            console.log('ซิงค์ข้อมูลจาก Google Sheets สำเร็จ');
+        }
+    } catch (err) {
+        console.error('ไม่สามารถดึงข้อมูลจาก Google Sheets ได้:', err);
+    }
+}
         const defaultUsers = [
             { id: 1, username: 'admin', password: 'mjul3510', name: 'ผู้ดูแลระบบ (Admin)', role: 'admin' },
             { id: 2, username: 'staff1', password: '1234', name: 'กาญจนห์ทัย ศรีบุญเรือง', role: 'staff' },
@@ -639,34 +659,37 @@
         }
 
         function setupUserUI() {
-            if (!currentUser) return;
+    if (!currentUser) return;
 
-            document.getElementById('currentUserBadge').innerHTML = 
-                `<i class="fa-solid fa-user-circle mr-1"></i> ${currentUser.name} (${currentUser.role.toUpperCase()})`;
+    document.getElementById('currentUserBadge').innerHTML = 
+        `<i class="fa-solid fa-user-circle mr-1"></i> ${currentUser.name} (${currentUser.role.toUpperCase()})`;
 
-            const adminNavs = document.querySelectorAll('.admin-only');
-            adminNavs.forEach(el => {
-                if (currentUser.role === 'admin') {
-                    el.classList.remove('hidden');
-                } else {
-                    el.classList.add('hidden');
-                }
-            });
-
-            populateStaffDropdowns();
-            populateCounterDropdowns();
-
-            if (currentUser.role !== 'admin') {
-                document.querySelectorAll('.staff-select-options').forEach(select => {
-                    select.value = currentUser.name;
-                });
-            }
-
-            renderStaffTable();
-            renderCounterTable();
-            renderSummary();
-            renderHistoryTable();
+    const adminNavs = document.querySelectorAll('.admin-only');
+    adminNavs.forEach(el => {
+        if (currentUser.role === 'admin') {
+            el.classList.remove('hidden');
+        } else {
+            el.classList.add('hidden');
         }
+    });
+
+    populateStaffDropdowns();
+    populateCounterDropdowns();
+
+    if (currentUser.role !== 'admin') {
+        document.querySelectorAll('.staff-select-options').forEach(select => {
+            select.value = currentUser.name;
+        });
+    }
+
+    renderStaffTable();
+    renderCounterTable();
+    renderSummary();
+    renderHistoryTable();
+
+    // เพิ่มบรรทัดนี้เพื่อดึงข้อมูลจาก Google Sheet ทันทีที่เข้าใช้งาน
+    fetchDataFromGoogleSheets();
+}
 
         // --- ดึงรายชื่อเจ้าหน้าที่ลง Dropdown ---
         function populateStaffDropdowns() {
