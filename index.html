@@ -1107,7 +1107,8 @@
             if (document.getElementById('cardRegHours')) document.getElementById('cardRegHours').innerText = `${regHours} ชม.`;
             if (document.getElementById('cardOtHours')) document.getElementById('cardOtHours').innerText = `${otHours} ชม.`;
             if (document.getElementById('cardOtPay')) document.getElementById('cardOtPay').innerText = `${otPay.toLocaleString()} บาท`;
-            if (document.getElementById('cardTotalDays')) document.getElementById('cardTotalDays').innerText = `${((regHours + otHours) / 7).toFixed(1)} วัน`;
+            // แก้ไข: ให้หาร 7 เฉพาะชั่วโมงปกติ (regHours) เท่านั้น ไม่รวม otHours
+            if (document.getElementById('cardTotalDays')) document.getElementById('cardTotalDays').innerText = `${(regHours / 7).toFixed(1)} วัน`;
 
             const summaryTableBody = document.getElementById('summaryTableBody');
             if (!summaryTableBody) return;
