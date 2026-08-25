@@ -538,26 +538,6 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // ฟังก์ชันสำหรับดึงข้อมูลจาก Google Sheet มาซิงค์ในเครื่อง
-async function fetchDataFromGoogleSheets() {
-    const webAppUrl = localStorage.getItem('webAppUrl');
-    if (!webAppUrl) return;
-
-    try {
-        const response = await fetch(webAppUrl);
-        const result = await response.json();
-
-        if (result.result === 'success' && Array.isArray(result.data)) {
-            // บันทึกข้อมูลที่ดึงได้ลง localStorage และอัปเดตการแสดงผล
-            localStorage.setItem('appRecords', JSON.stringify(result.data));
-            renderSummary();
-            renderHistoryTable();
-            console.log('ซิงค์ข้อมูลจาก Google Sheets สำเร็จ');
-        }
-    } catch (err) {
-        console.error('ไม่สามารถดึงข้อมูลจาก Google Sheets ได้:', err);
-    }
-}
         const defaultUsers = [
             { id: 1, username: 'admin', password: 'mjul3510', name: 'ผู้ดูแลระบบ (Admin)', role: 'admin' },
             { id: 2, username: 'staff1', password: '1234', name: 'กาญจนห์ทัย ศรีบุญเรือง', role: 'staff' },
@@ -608,10 +588,13 @@ async function fetchDataFromGoogleSheets() {
             if(document.getElementById('otDate')) document.getElementById('otDate').value = today;
             if(document.getElementById('summaryMonthPicker')) document.getElementById('summaryMonthPicker').value = currentMonth;
 
-            const savedUrl = localStorage.getItem('webAppUrl');
-            if (savedUrl && document.getElementById('webAppUrlInput')) {
+            // แก้ไข: ฝัง Web App URL ของคุณเป็นค่าเริ่มต้น เพื่อความสะดวก
+            const defaultWebAppUrl = "https://script.google.com/macros/s/AKfycbwgy2wZZFoi7Jt_QyVYp_f1uFG023MwqsVqFfFpySEZ8eGJIJcIEtP3LVAfGpeTgzEqfg/exec";
+            const savedUrl = localStorage.getItem('webAppUrl') || defaultWebAppUrl;
+            if (document.getElementById('webAppUrlInput')) {
                 document.getElementById('webAppUrlInput').value = savedUrl;
             }
+            localStorage.setItem('webAppUrl', savedUrl); 
 
             populateCounterDropdowns();
             checkSession();
@@ -659,37 +642,34 @@ async function fetchDataFromGoogleSheets() {
         }
 
         function setupUserUI() {
-    if (!currentUser) return;
+            if (!currentUser) return;
 
-    document.getElementById('currentUserBadge').innerHTML = 
-        `<i class="fa-solid fa-user-circle mr-1"></i> ${currentUser.name} (${currentUser.role.toUpperCase()})`;
+            document.getElementById('currentUserBadge').innerHTML = 
+                `<i class="fa-solid fa-user-circle mr-1"></i> ${currentUser.name} (${currentUser.role.toUpperCase()})`;
 
-    const adminNavs = document.querySelectorAll('.admin-only');
-    adminNavs.forEach(el => {
-        if (currentUser.role === 'admin') {
-            el.classList.remove('hidden');
-        } else {
-            el.classList.add('hidden');
+            const adminNavs = document.querySelectorAll('.admin-only');
+            adminNavs.forEach(el => {
+                if (currentUser.role === 'admin') {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+
+            populateStaffDropdowns();
+            populateCounterDropdowns();
+
+            if (currentUser.role !== 'admin') {
+                document.querySelectorAll('.staff-select-options').forEach(select => {
+                    select.value = currentUser.name;
+                });
+            }
+
+            renderStaffTable();
+            renderCounterTable();
+            renderSummary();
+            renderHistoryTable();
         }
-    });
-
-    populateStaffDropdowns();
-    populateCounterDropdowns();
-
-    if (currentUser.role !== 'admin') {
-        document.querySelectorAll('.staff-select-options').forEach(select => {
-            select.value = currentUser.name;
-        });
-    }
-
-    renderStaffTable();
-    renderCounterTable();
-    renderSummary();
-    renderHistoryTable();
-
-    // เพิ่มบรรทัดนี้เพื่อดึงข้อมูลจาก Google Sheet ทันทีที่เข้าใช้งาน
-    fetchDataFromGoogleSheets();
-}
 
         // --- ดึงรายชื่อเจ้าหน้าที่ลง Dropdown ---
         function populateStaffDropdowns() {
@@ -1076,12 +1056,23 @@ async function fetchDataFromGoogleSheets() {
 
             const webAppUrl = localStorage.getItem('webAppUrl');
             if (webAppUrl) {
+                // แก้ไข: ปรับแต่ง Headers เพื่อป้องกัน CORS Error
                 fetch(webAppUrl, {
                     method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'text/plain;charset=utf-8' 
+                    },
                     body: JSON.stringify(record)
-                }).catch(err => console.error('Error sync Google Sheets:', err));
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.result === 'success') {
+                        console.log('บันทึกข้อมูลลง Google Sheet สำเร็จ');
+                    } else {
+                        console.error('พบปัญหาฝั่งเซิร์ฟเวอร์:', data.error);
+                    }
+                })
+                .catch(err => console.error('Error sync Google Sheets:', err));
             }
 
             renderSummary();
