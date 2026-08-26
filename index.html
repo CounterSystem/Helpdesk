@@ -13,19 +13,79 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <style> 
-        body { font-family: 'Prompt', sans-serif; } 
-        .bg-pink-gradient { background: linear-gradient(135deg, #581c87 0%, #881337 50%, #9f1239 100%); }
-        /* บังคับให้ SweetAlert ใช้ฟอนต์ Prompt */
-        .swal2-popup { font-family: 'Prompt', sans-serif !important; border-radius: 1.5rem !important; }
-        .swal2-title { font-size: 1.5rem !important; font-weight: 600 !important; color: #1e293b !important; }
-    </style>
+	    <style> 
+	        html, body { max-width: 100%; overflow-x: hidden; }
+	        body { font-family: 'Prompt', sans-serif; } 
+	        .bg-pink-gradient { background: linear-gradient(135deg, #581c87 0%, #881337 50%, #9f1239 100%); }
+	        .nav-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+	        .nav-scroll::-webkit-scrollbar { display: none; }
+	        /* บังคับให้ SweetAlert ใช้ฟอนต์ Prompt */
+	        .swal2-popup { font-family: 'Prompt', sans-serif !important; border-radius: 1.5rem !important; }
+	        .swal2-title { font-size: 1.5rem !important; font-weight: 600 !important; color: #1e293b !important; }
+
+	        @media (max-width: 767px) {
+	            input, select, textarea { font-size: 16px !important; }
+	            button, input:not([type="radio"]):not([type="checkbox"]):not([type="hidden"]), select { min-height: 44px; }
+	            input[type="radio"], input[type="checkbox"] { flex: 0 0 auto; }
+	            .mobile-table-wrap { overflow: visible; }
+	            .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td {
+	                display: block;
+	                width: 100%;
+	            }
+	            .responsive-table thead { display: none; }
+	            .responsive-table tbody {
+	                display: grid;
+	                gap: 0.875rem;
+	                padding: 0.875rem;
+	                background: #f8fafc;
+	            }
+	            .responsive-table tr {
+	                overflow: hidden;
+	                border: 1px solid #e2e8f0;
+	                border-radius: 1rem;
+	                background: #fff;
+	                box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+	            }
+	            .responsive-table td[data-label] {
+	                display: grid;
+	                grid-template-columns: minmax(7.5rem, 42%) minmax(0, 1fr);
+	                align-items: center;
+	                gap: 0.75rem;
+	                min-height: 2.75rem;
+	                padding: 0.65rem 0.875rem !important;
+	                border-bottom: 1px solid #f1f5f9;
+	                text-align: right !important;
+	                overflow-wrap: anywhere;
+	            }
+	            .responsive-table td[data-label]::before {
+	                content: attr(data-label);
+	                color: #64748b;
+	                font-size: 0.72rem;
+	                font-weight: 600;
+	                text-align: left;
+	            }
+	            .responsive-table td[data-label]:last-child { border-bottom: 0; }
+	            .responsive-table td.mobile-card-title {
+	                background: #f8fafc;
+	                color: #0f172a;
+	                font-weight: 700;
+	            }
+	            .responsive-table td.empty-state {
+	                display: block;
+	                padding: 1.5rem !important;
+	                text-align: center !important;
+	            }
+	            .responsive-table td[data-label] > span { justify-self: end; }
+	            .swal2-popup { width: calc(100% - 2rem) !important; padding: 1.25rem !important; }
+	            .swal2-title { font-size: 1.25rem !important; }
+	        }
+	    </style>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-800 antialiased">
 
     <!-- LOGIN OVERLAY -->
     <div id="loginOverlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full border border-slate-100">
+	        <div class="bg-white rounded-3xl shadow-2xl p-5 sm:p-8 max-w-md w-full border border-slate-100 max-h-[calc(100dvh-2rem)] overflow-y-auto">
             <div class="text-center mb-6">
                 <div class="inline-flex p-4 rounded-full bg-rose-50 text-rose-800 mb-3 shadow-inner">
                     <i class="fa-solid fa-user-lock text-4xl"></i>
@@ -64,27 +124,27 @@
         
         <!-- HEADER -->
         <header class="bg-pink-gradient text-white shadow-lg sticky top-0 z-30">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
-                    <div class="flex items-center space-x-3">
-                        <div class="p-2.5 bg-white/15 backdrop-blur-md rounded-2xl border border-white/10">
-                            <i class="fa-solid fa-clock-rotate-left text-2xl text-rose-100"></i>
-                        </div>
-                        <div>
-                            <h1 class="font-bold text-lg leading-tight tracking-wide">ระบบบันทึกสถิติเคาน์เตอร์ & ค่าตอบแทน OT</h1>
-                            <p class="text-xs text-rose-200 font-light">อัตราค่าตอบแทนล่วงเวลา 30 บาท/ชั่วโมง</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span id="currentUserBadge" class="hidden sm:inline-block px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-xs font-medium border border-white/10"></span>
-                        <button onclick="handleLogout()" class="px-3.5 py-1.5 bg-rose-950/60 hover:bg-rose-950 text-rose-100 rounded-xl text-xs flex items-center gap-1.5 transition-all border border-rose-800/50">
-                            <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
-                        </button>
-                    </div>
-                </div>
+	            <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+	                <div class="flex justify-between items-center gap-2 min-h-16 py-2 sm:h-16 sm:py-0">
+	                    <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+	                        <div class="hidden sm:block p-2.5 bg-white/15 backdrop-blur-md rounded-2xl border border-white/10 shrink-0">
+	                            <i class="fa-solid fa-clock-rotate-left text-2xl text-rose-100"></i>
+	                        </div>
+	                        <div class="min-w-0">
+	                            <h1 class="font-bold text-sm sm:text-lg leading-tight sm:tracking-wide">ระบบบันทึกสถิติเคาน์เตอร์ & ค่าตอบแทน OT</h1>
+	                            <p class="hidden sm:block text-xs text-rose-200 font-light">อัตราค่าตอบแทนล่วงเวลา 30 บาท/ชั่วโมง</p>
+	                        </div>
+	                    </div>
+	                    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+	                        <span id="currentUserBadge" class="hidden sm:inline-block px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-xs font-medium border border-white/10"></span>
+	                        <button onclick="handleLogout()" class="w-11 sm:w-auto px-0 sm:px-3.5 py-1.5 bg-rose-950/60 hover:bg-rose-950 text-rose-100 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all border border-rose-800/50" aria-label="ออกจากระบบ">
+	                            <i class="fa-solid fa-right-from-bracket"></i><span class="hidden sm:inline">ออกจากระบบ</span>
+	                        </button>
+	                    </div>
+	                </div>
 
                 <!-- NAVIGATION TABS -->
-                <nav class="flex space-x-1 border-t border-white/10 pt-2 overflow-x-auto">
+	                <nav class="nav-scroll flex space-x-1 border-t border-white/10 pt-2 overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 snap-x">
                     <button onclick="switchTab('record')" id="tab-record" class="tab-btn px-4 py-2.5 text-xs font-semibold rounded-t-xl bg-white text-rose-900 shadow-sm flex items-center gap-2 whitespace-nowrap">
                         <i class="fa-solid fa-calendar-check text-rose-700"></i> บันทึกสถิติปกติ
                     </button>
@@ -105,11 +165,11 @@
         </header>
 
         <!-- MAIN CONTENT CONTAINER -->
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+	        <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 flex-grow w-full">
 
             <!-- TAB 1: บันทึกสถิติเวลาปกติ -->
             <section id="content-record" class="tab-content hidden space-y-6">
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 md:p-8">
+	                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 p-4 sm:p-6 md:p-8">
                     <div class="flex items-center gap-3 border-b border-slate-100 pb-4 mb-6">
                         <div class="p-3 bg-rose-50 text-rose-800 rounded-2xl border border-rose-100/60"><i class="fa-solid fa-pen-to-square text-xl"></i></div>
                         <div>
@@ -119,9 +179,9 @@
                     </div>
 
                     <form id="formRegular" onsubmit="saveRegularRecord(event)" class="space-y-6">
-                        <div id="regularEditNotice" class="hidden items-center justify-between gap-3 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+	                        <div id="regularEditNotice" class="hidden flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
                             <span><i class="fa-solid fa-pen-to-square mr-1.5"></i>กำลังแก้ไขรายการเดิม ระบบจะบันทึกทับด้วย Record ID เดิม</span>
-                            <button type="button" onclick="cancelRecordEdit()" class="whitespace-nowrap rounded-xl bg-white px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-sm">ยกเลิกการแก้ไข</button>
+	                            <button type="button" onclick="cancelRecordEdit()" class="w-full sm:w-auto whitespace-nowrap rounded-xl bg-white px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-sm">ยกเลิกการแก้ไข</button>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
@@ -143,7 +203,7 @@
                         <!-- รูปแบบการระบุเวลา -->
                         <div class="space-y-3">
                             <label class="block text-xs font-semibold text-slate-700">รูปแบบการเลือกเวลาปฏิบัติงาน</label>
-                            <div class="flex items-center gap-6">
+	                            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
                                 <label class="inline-flex items-center cursor-pointer">
                                     <input type="radio" name="regTimeType" value="preset" checked onchange="toggleRegTimeMode()" class="accent-rose-800 w-4 h-4">
                                     <span class="ml-2 text-xs font-medium text-slate-700">ช่วงเวลามาตรฐาน</span>
@@ -219,7 +279,7 @@
 
             <!-- TAB 2: บันทึกสถิติโอที (OT) -->
             <section id="content-ot" class="tab-content hidden space-y-6">
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 md:p-8">
+	                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 p-4 sm:p-6 md:p-8">
                     <div class="flex items-center gap-3 border-b border-slate-100 pb-4 mb-6">
                         <div class="p-3 bg-amber-50 text-amber-700 rounded-2xl border border-amber-100/60"><i class="fa-solid fa-stopwatch text-xl"></i></div>
                         <div>
@@ -229,9 +289,9 @@
                     </div>
 
                     <form id="formOt" onsubmit="saveOtRecord(event)" class="space-y-6">
-                        <div id="otEditNotice" class="hidden items-center justify-between gap-3 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+	                        <div id="otEditNotice" class="hidden flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
                             <span><i class="fa-solid fa-pen-to-square mr-1.5"></i>กำลังแก้ไขรายการ OT เดิม ระบบจะบันทึกทับด้วย Record ID เดิม</span>
-                            <button type="button" onclick="cancelRecordEdit()" class="whitespace-nowrap rounded-xl bg-white px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-sm">ยกเลิกการแก้ไข</button>
+	                            <button type="button" onclick="cancelRecordEdit()" class="w-full sm:w-auto whitespace-nowrap rounded-xl bg-white px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-sm">ยกเลิกการแก้ไข</button>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
@@ -344,27 +404,27 @@
 
             <!-- TAB 3: DASHBOARD สรุปรายเดือน -->
             <section id="content-summary" class="tab-content hidden space-y-6">
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+	                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 p-4 sm:p-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
                     <div>
                         <h2 class="text-lg font-bold text-slate-800"><i class="fa-solid fa-chart-line text-rose-800 mr-2"></i>Dashboard สรุปสถิติประจำเดือน</h2>
                         <p class="text-xs text-slate-500">คำนวณชั่วโมงปฏิบัติงานปกติ ชั่วโมงโอที และยอดรวมค่าตอบแทน</p>
                     </div>
                     
                     <!-- Control Actions -->
-                    <div class="flex flex-wrap items-center gap-2.5 w-full xl:w-auto">
-                        <input type="month" id="summaryMonthPicker" onchange="renderSummary()" class="px-3.5 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-rose-800">
-                        <select id="summaryStaffFilter" onchange="renderSummary()" class="px-3.5 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-rose-800">
+	                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:flex items-stretch xl:items-center gap-2.5 w-full xl:w-auto">
+	                        <input type="month" id="summaryMonthPicker" onchange="renderSummary()" class="w-full xl:w-auto px-3.5 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-rose-800">
+	                        <select id="summaryStaffFilter" onchange="renderSummary()" class="w-full xl:w-auto px-3.5 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-rose-800">
                             <option value="ALL">-- แสดงทุกคน --</option>
                         </select>
                         
-                        <button type="button" onclick="syncDataFromGoogleSheets()" class="px-3.5 py-2 bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-semibold rounded-xl shadow-md transition-all flex items-center gap-1.5">
+	                        <button type="button" onclick="syncDataFromGoogleSheets()" class="w-full xl:w-auto px-3.5 py-2 bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-rotate"></i> ดึงข้อมูลล่าสุด
                         </button>
 
-                        <button type="button" onclick="exportDetailedCSV()" class="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-xl shadow-md transition-all flex items-center gap-1.5" title="ส่งออกข้อมูลรายการย่อยละเอียด">
+	                        <button type="button" onclick="exportDetailedCSV()" class="w-full xl:w-auto px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5" title="ส่งออกข้อมูลรายการย่อยละเอียด">
                             <i class="fa-solid fa-list"></i> รายละเอียด CSV
                         </button>
-                        <button type="button" onclick="exportSummaryCSV()" class="px-3.5 py-2 bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold rounded-xl shadow-md transition-all flex items-center gap-1.5" title="ส่งออกตารางสรุปยอดรวมประจำเดือน">
+	                        <button type="button" onclick="exportSummaryCSV()" class="w-full xl:w-auto px-3.5 py-2 bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5" title="ส่งออกตารางสรุปยอดรวมประจำเดือน">
                             <i class="fa-solid fa-table"></i> ตารางสรุป CSV
                         </button>
                     </div>
@@ -403,9 +463,9 @@
                 </div>
 
                 <!-- TABLE SUMMARY -->
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm">
+	                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
+	                    <div class="mobile-table-wrap overflow-x-auto">
+	                        <table class="responsive-table w-full text-left text-sm md:min-w-[980px]">
                             <thead class="bg-slate-50 text-slate-700 text-xs font-semibold uppercase border-b border-slate-100">
                                 <tr>
                                     <th class="py-3.5 px-4">#</th>
@@ -429,22 +489,22 @@
 
             <!-- TAB 4: ประวัติการบันทึก -->
             <section id="content-history" class="tab-content hidden space-y-6">
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
-                    <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+	                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
+	                    <div class="p-4 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
                         <div>
                             <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                                 <i class="fa-solid fa-history text-rose-800"></i> ประวัติรายการบันทึกทั้งหมด
                             </h2>
                         </div>
-                        <div class="flex items-center gap-3 w-full sm:w-auto">
+	                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
                             <input type="text" id="searchInput" onkeyup="renderHistoryTable()" placeholder="ค้นหาชื่อ, วันที่..." class="px-4 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-rose-800 w-full sm:w-64">
-                            <button onclick="clearAllData()" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200/60 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all">
+	                            <button onclick="clearAllData()" class="w-full sm:w-auto px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200/60 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all whitespace-nowrap">
                                 <i class="fa-solid fa-trash-can"></i> ล้างประวัติทั้งหมด
                             </button>
                         </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm">
+	                    <div class="mobile-table-wrap overflow-x-auto">
+	                        <table class="responsive-table w-full text-left text-sm md:min-w-[760px]">
                             <thead class="bg-slate-50 text-slate-700 text-xs font-semibold uppercase border-b border-slate-100">
                                 <tr>
                                     <th class="py-3.5 px-4">วันที่</th>
@@ -466,7 +526,7 @@
             <section id="content-staff" class="tab-content hidden space-y-6">
                 
                 <!-- 1. ตั้งค่า GOOGLE SCRIPT URL -->
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 md:p-8">
+	                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 p-4 sm:p-6 md:p-8">
                     <div class="flex items-center gap-3 border-b border-slate-100 pb-4 mb-4">
                         <div class="p-3 bg-emerald-50 text-emerald-800 rounded-2xl border border-emerald-100"><i class="fa-solid fa-link text-xl"></i></div>
                         <div>
@@ -485,7 +545,7 @@
                 </div>
 
                 <!-- 2. จัดการข้อมูลเคาน์เตอร์ / จุดบริการ -->
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 md:p-8">
+	                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 p-4 sm:p-6 md:p-8">
                     <div class="flex items-center gap-3 border-b border-slate-100 pb-4 mb-6">
                         <div class="p-3 bg-purple-50 text-purple-800 rounded-2xl border border-purple-100"><i class="fa-solid fa-desktop text-xl"></i></div>
                         <div>
@@ -523,7 +583,7 @@
                 </div>
 
                 <!-- 3. จัดการผู้ใช้งาน (STAFF/ADMIN) -->
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 md:p-8">
+	                <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 p-4 sm:p-6 md:p-8">
                     <div class="flex items-center gap-3 border-b border-slate-100 pb-4 mb-6">
                         <div class="p-3 bg-amber-50 text-amber-800 rounded-2xl border border-amber-100"><i class="fa-solid fa-users-gear text-xl"></i></div>
                         <div>
@@ -621,6 +681,15 @@
 
                 return a.name.localeCompare(b.name, 'th');
             });
+        }
+
+        function getAdminNameSet(usersList) {
+            return new Set(
+                usersList
+                    .filter(user => user.role === 'admin')
+                    .map(user => String(user.name || '').trim())
+                    .filter(Boolean)
+            );
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -783,16 +852,18 @@
 
         function populateStaffDropdowns() {
             const users = JSON.parse(localStorage.getItem('appUsers')) || defaultUsers;
-            const staffList = sortUsersCustom(users.filter(u => u.role === 'staff' || u.role === 'admin'));
-            const staffOptions = staffList.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
+            const formStaffList = sortUsersCustom(users.filter(u => u.role === 'staff' || u.role === 'admin'));
+            const dashboardStaffList = sortUsersCustom(users.filter(u => u.role === 'staff'));
+            const formStaffOptions = formStaffList.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
+            const dashboardStaffOptions = dashboardStaffList.map(u => `<option value="${u.name}">${u.name}</option>`).join('');
             
             document.querySelectorAll('.staff-select-options').forEach(select => {
-                select.innerHTML = '<option value="">-- เลือกเจ้าหน้าที่ --</option>' + staffOptions;
+                select.innerHTML = '<option value="">-- เลือกเจ้าหน้าที่ --</option>' + formStaffOptions;
             });
 
             const summaryFilter = document.getElementById('summaryStaffFilter');
             if (summaryFilter) {
-                summaryFilter.innerHTML = '<option value="ALL">-- แสดงทุกคน --</option>' + staffOptions;
+                summaryFilter.innerHTML = '<option value="ALL">-- แสดงทุกคน --</option>' + dashboardStaffOptions;
             }
         }
 
@@ -1272,6 +1343,7 @@
         function renderSummary() {
             const records = JSON.parse(localStorage.getItem('appRecords')) || [];
             const users = JSON.parse(localStorage.getItem('appUsers')) || defaultUsers;
+            const adminNames = getAdminNameSet(users);
             const selectedMonth = document.getElementById('summaryMonthPicker')?.value;
             const selectedStaff = document.getElementById('summaryStaffFilter')?.value;
 
@@ -1296,7 +1368,7 @@
                 const selStaff = String(selectedStaff || '').trim();
                 const matchStaff = !selectedStaff || selectedStaff === 'ALL' || rStaff === selStaff;
                 
-                return matchMonth && matchStaff;
+                return !adminNames.has(rStaff) && matchMonth && matchStaff;
             });
 
             let regHours = 0, otHours = 0, otPay = 0;
@@ -1324,10 +1396,15 @@
             if (!summaryTableBody) return;
 
             let staffListToRender = (selectedStaff && selectedStaff !== 'ALL') 
-                ? users.filter(u => String(u.name).trim() === String(selectedStaff).trim())
-                : users.filter(u => u.role === 'staff' || u.role === 'admin');
+                ? users.filter(u => u.role === 'staff' && String(u.name).trim() === String(selectedStaff).trim())
+                : users.filter(u => u.role === 'staff');
 
             staffListToRender = sortUsersCustom(staffListToRender);
+
+            if (staffListToRender.length === 0) {
+                summaryTableBody.innerHTML = '<tr><td colspan="11" class="empty-state text-center py-6 text-slate-400">ไม่พบรายชื่อเจ้าหน้าที่</td></tr>';
+                return;
+            }
 
             summaryTableBody.innerHTML = staffListToRender.map((u, index) => {
                 const targetStaffName = String(u.name).trim();
@@ -1356,17 +1433,17 @@
 
                 return `
                     <tr class="hover:bg-slate-50 transition-all">
-                        <td class="py-3 px-4 text-xs font-semibold text-slate-400">${index + 1}</td>
-                        <td class="py-3 px-4 font-medium text-slate-800">${u.name}</td>
-                        <td class="py-3 px-4 text-center">${c1_borrow ? c1_borrow.toFixed(1) : '-'}</td>
-                        <td class="py-3 px-4 text-center">${c1_qa ? c1_qa.toFixed(1) : '-'}</td>
-                        <td class="py-3 px-4 text-center">${c2_qa ? c2_qa.toFixed(1) : '-'}</td>
-                        <td class="py-3 px-4 text-center text-slate-500 font-medium">${c_other ? c_other.toFixed(1) : '-'}</td>
-                        <td class="py-3 px-4 text-center font-semibold bg-rose-50/40 text-rose-900">${totalReg.toFixed(1)}</td>
-                        <td class="py-3 px-4 text-center font-bold bg-rose-100/40 text-rose-950">${totalRegDays} วัน</td>
-                        <td class="py-3 px-4 text-center font-semibold bg-amber-50/40 text-amber-900">${totalOt.toFixed(1)}</td>
-                        <td class="py-3 px-4 text-center font-bold text-slate-900">${grandTotalHours}</td>
-                        <td class="py-3 px-4 text-center font-bold text-emerald-700 bg-emerald-50/40">${Math.round(totalPay).toLocaleString()}</td>
+                        <td data-label="ลำดับ" class="py-3 px-4 text-xs font-semibold text-slate-400">${index + 1}</td>
+                        <td data-label="ชื่อ - นามสกุล" class="mobile-card-title py-3 px-4 font-medium text-slate-800">${u.name}</td>
+                        <td data-label="ชั้น 1 (ยืม-คืน)" class="py-3 px-4 text-center">${c1_borrow ? c1_borrow.toFixed(1) : '-'}</td>
+                        <td data-label="ชั้น 1 (ตอบคำถาม)" class="py-3 px-4 text-center">${c1_qa ? c1_qa.toFixed(1) : '-'}</td>
+                        <td data-label="ชั้น 2 (ตอบคำถาม)" class="py-3 px-4 text-center">${c2_qa ? c2_qa.toFixed(1) : '-'}</td>
+                        <td data-label="จุดบริการอื่นๆ" class="py-3 px-4 text-center text-slate-500 font-medium">${c_other ? c_other.toFixed(1) : '-'}</td>
+                        <td data-label="ชั่วโมงปกติ" class="py-3 px-4 text-center font-semibold bg-rose-50/40 text-rose-900">${totalReg.toFixed(1)}</td>
+                        <td data-label="วันปกติ" class="py-3 px-4 text-center font-bold bg-rose-100/40 text-rose-950">${totalRegDays} วัน</td>
+                        <td data-label="ชั่วโมง OT" class="py-3 px-4 text-center font-semibold bg-amber-50/40 text-amber-900">${totalOt.toFixed(1)}</td>
+                        <td data-label="รวมชั่วโมงทั้งหมด" class="py-3 px-4 text-center font-bold text-slate-900">${grandTotalHours}</td>
+                        <td data-label="ค่าตอบแทน OT" class="py-3 px-4 text-center font-bold text-emerald-700 bg-emerald-50/40">${Math.round(totalPay).toLocaleString()} บาท</td>
                     </tr>
                 `;
             }).join('');
@@ -1507,7 +1584,7 @@
             ).slice().reverse();
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">ไม่พบรายการบันทึก</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="empty-state text-center py-6 text-slate-400">ไม่พบรายการบันทึก</td></tr>`;
                 return;
             }
 
@@ -1526,17 +1603,17 @@
 
                 return `
                 <tr class="hover:bg-slate-50 transition-all">
-                    <td class="py-3 px-4 font-medium text-slate-700">${displayDate}</td>
-                    <td class="py-3 px-4 font-medium text-slate-900">${r.staffName}</td>
-                    <td class="py-3 px-4">
+                    <td data-label="วันที่" class="py-3 px-4 font-medium text-slate-700">${displayDate}</td>
+                    <td data-label="ชื่อผู้ปฏิบัติงาน" class="mobile-card-title py-3 px-4 font-medium text-slate-900">${r.staffName}</td>
+                    <td data-label="ประเภท" class="py-3 px-4">
                         <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${r.type === 'ot' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800'}">
                             ${r.type === 'ot' ? 'OT' : 'ปกติ'}
                         </span>
                     </td>
-                    <td class="py-3 px-4 text-slate-600">${r.counter}</td>
-                    <td class="py-3 px-4 text-center font-bold">${r.hours} ชม.</td>
-                    <td class="py-3 px-4 text-center text-emerald-700 font-semibold">${r.pay ? r.pay + ' ฿' : '-'}</td>
-                    <td class="py-3 px-4 text-center whitespace-nowrap">
+                    <td data-label="จุดบริการ" class="py-3 px-4 text-slate-600">${r.counter}</td>
+                    <td data-label="ชั่วโมง" class="py-3 px-4 text-center font-bold">${r.hours} ชม.</td>
+                    <td data-label="ค่าตอบแทน" class="py-3 px-4 text-center text-emerald-700 font-semibold">${r.pay ? r.pay + ' ฿' : '-'}</td>
+                    <td data-label="จัดการ" class="py-3 px-4 text-center whitespace-nowrap">
                         <button onclick="editRecord('${r.id}')" class="text-blue-600 hover:text-blue-800 p-1" title="แก้ไขรายการ"><i class="fa-solid fa-pen-to-square"></i></button>
                         <button onclick="deleteRecord('${r.id}')" class="text-rose-600 hover:text-rose-800 p-1" title="ลบรายการ"><i class="fa-solid fa-trash-can"></i></button>
                     </td>
@@ -1621,6 +1698,8 @@
 
         function exportDetailedCSV() {
             const records = JSON.parse(localStorage.getItem('appRecords')) || [];
+            const users = JSON.parse(localStorage.getItem('appUsers')) || defaultUsers;
+            const adminNames = getAdminNameSet(users);
             const selectedMonth = document.getElementById('summaryMonthPicker')?.value;
             const selectedStaff = document.getElementById('summaryStaffFilter')?.value;
 
@@ -1628,7 +1707,7 @@
                 const safeDateStr = String(r.date || '');
                 const matchMonth = !selectedMonth || safeDateStr.startsWith(selectedMonth);
                 const matchStaff = !selectedStaff || selectedStaff === 'ALL' || r.staffName === selectedStaff;
-                return matchMonth && matchStaff;
+                return !adminNames.has(String(r.staffName || '').trim()) && matchMonth && matchStaff;
             });
 
             if (filtered.length === 0) {
@@ -1650,6 +1729,7 @@
         function exportSummaryCSV() {
             const records = JSON.parse(localStorage.getItem('appRecords')) || [];
             const users = JSON.parse(localStorage.getItem('appUsers')) || defaultUsers;
+            const adminNames = getAdminNameSet(users);
             const selectedMonth = document.getElementById('summaryMonthPicker')?.value;
             const selectedStaff = document.getElementById('summaryStaffFilter')?.value;
 
@@ -1657,7 +1737,7 @@
                 const safeDateStr = String(r.date || '');
                 const matchMonth = !selectedMonth || safeDateStr.startsWith(selectedMonth);
                 const matchStaff = !selectedStaff || selectedStaff === 'ALL' || r.staffName === selectedStaff;
-                return matchMonth && matchStaff;
+                return !adminNames.has(String(r.staffName || '').trim()) && matchMonth && matchStaff;
             });
             
             if (filtered.length === 0) {
@@ -1666,8 +1746,8 @@
             }
 
             let staffListToRender = (selectedStaff && selectedStaff !== 'ALL') 
-                ? users.filter(u => u.name === selectedStaff)
-                : users.filter(u => u.role === 'staff' || u.role === 'admin');
+                ? users.filter(u => u.role === 'staff' && u.name === selectedStaff)
+                : users.filter(u => u.role === 'staff');
 
             staffListToRender = sortUsersCustom(staffListToRender);
 
