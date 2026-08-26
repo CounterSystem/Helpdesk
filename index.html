@@ -4,12 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบบริหารจัดการสถิติเคาน์เตอร์และลงเวลาโอที</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <style> 
         body { font-family: 'Prompt', sans-serif; } 
         .bg-pink-gradient { background: linear-gradient(135deg, #581c87 0%, #881337 50%, #9f1239 100%); }
+        /* บังคับให้ SweetAlert ใช้ฟอนต์ Prompt */
+        .swal2-popup { font-family: 'Prompt', sans-serif !important; border-radius: 1.5rem !important; }
+        .swal2-title { font-size: 1.5rem !important; font-weight: 600 !important; color: #1e293b !important; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-800 antialiased">
@@ -99,7 +108,7 @@
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
 
             <!-- TAB 1: บันทึกสถิติเวลาปกติ -->
-            <section id="content-record" class="tab-content space-y-6">
+            <section id="content-record" class="tab-content hidden space-y-6">
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 md:p-8">
                     <div class="flex items-center gap-3 border-b border-slate-100 pb-4 mb-6">
                         <div class="p-3 bg-rose-50 text-rose-800 rounded-2xl border border-rose-100/60"><i class="fa-solid fa-pen-to-square text-xl"></i></div>
@@ -344,9 +353,8 @@
                             <i class="fa-solid fa-rotate"></i> ดึงข้อมูลล่าสุด
                         </button>
 
-                        <!-- ปุ่ม Export ทั้ง 2 รูปแบบ -->
                         <button type="button" onclick="exportDetailedCSV()" class="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-xl shadow-md transition-all flex items-center gap-1.5" title="ส่งออกข้อมูลรายการย่อยละเอียด">
-                            <i class="fa-solid fa-list"></i> รายการรายละเอียด CSV
+                            <i class="fa-solid fa-list"></i> รายละเอียด CSV
                         </button>
                         <button type="button" onclick="exportSummaryCSV()" class="px-3.5 py-2 bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold rounded-xl shadow-md transition-all flex items-center gap-1.5" title="ส่งออกตารางสรุปยอดรวมประจำเดือน">
                             <i class="fa-solid fa-table"></i> ตารางสรุป CSV
@@ -397,11 +405,12 @@
                                     <th class="py-3.5 px-4 text-center">ชั้น 1 (ยืม-คืน)</th>
                                     <th class="py-3.5 px-4 text-center">ชั้น 1 (ตอบคำถาม)</th>
                                     <th class="py-3.5 px-4 text-center">ชั้น 2 (ตอบคำถาม)</th>
+                                    <th class="py-3.5 px-4 text-center">จุดบริการอื่นๆ</th>
                                     <th class="py-3.5 px-4 text-center bg-rose-50/60 text-rose-900 font-bold">ชม. ปกติ</th>
                                     <th class="py-3.5 px-4 text-center bg-rose-100/60 text-rose-950 font-bold">วันปกติ (วัน)</th>
                                     <th class="py-3.5 px-4 text-center bg-amber-50/60 text-amber-900 font-bold">ชม. OT</th>
                                     <th class="py-3.5 px-4 text-center font-bold">รวม ชม. ทั้งหมด</th>
-                                    <th class="py-3.5 px-4 text-center text-emerald-800 bg-emerald-50/60 font-bold">ค่าตอบแทน OT (บาท)</th>
+                                    <th class="py-3.5 px-4 text-center text-emerald-800 bg-emerald-50/60 font-bold">ค่าตอบแทน OT</th>
                                 </tr>
                             </thead>
                             <tbody id="summaryTableBody" class="divide-y divide-slate-100"></tbody>
@@ -477,7 +486,6 @@
                         </div>
                     </div>
 
-                    <!-- ฟอร์มเพิ่ม/แก้ไขเคาน์เตอร์ -->
                     <form id="formCounter" onsubmit="saveCounter(event)" class="space-y-4 mb-8 bg-slate-50 p-5 rounded-2xl border border-slate-200">
                         <input type="hidden" id="counterId">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -492,7 +500,6 @@
                         </div>
                     </form>
 
-                    <!-- ตารางแสดงรายการเคาน์เตอร์ -->
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm">
                             <thead class="bg-slate-100 text-slate-700 text-xs font-semibold uppercase">
@@ -517,7 +524,6 @@
                         </div>
                     </div>
 
-                    <!-- ฟอร์มเพิ่ม/แก้ไขเจ้าหน้าที่ -->
                     <form id="formStaff" onsubmit="saveStaff(event)" class="space-y-4 mb-8 bg-slate-50 p-5 rounded-2xl border border-slate-200">
                         <input type="hidden" id="staffId">
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -547,7 +553,6 @@
                         </div>
                     </form>
 
-                    <!-- ตารางแสดงรายชื่อเจ้าหน้าที่ทั้งหมด -->
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm">
                             <thead class="bg-slate-100 text-slate-700 text-xs font-semibold uppercase">
@@ -659,6 +664,9 @@
                 document.getElementById('loginError').classList.add('hidden');
                 document.getElementById('loginOverlay').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
+                
+                // เริ่มต้นหน้าเว็บที่แท็บแรกหลังจาก Login สำเร็จ
+                sessionStorage.setItem('activeTab', 'record'); 
                 setupUserUI();
             } else {
                 document.getElementById('loginError').classList.remove('hidden');
@@ -667,6 +675,7 @@
 
         function handleLogout() {
             sessionStorage.removeItem('currentUser');
+            sessionStorage.removeItem('activeTab');
             currentUser = null;
             document.getElementById('loginUsername').value = '';
             document.getElementById('loginPassword').value = '';
@@ -699,6 +708,11 @@
 
             renderStaffTable();
             renderCounterTable();
+
+            // คืนค่าแท็บเดิมก่อนรีเฟรชหน้าเว็บ
+            const savedTab = sessionStorage.getItem('activeTab') || 'record';
+            switchTab(savedTab);
+
             syncDataFromGoogleSheets();
         }
 
@@ -711,15 +725,41 @@
             }
 
             try {
-                const response = await fetch(webAppUrl);
+                // แจ้งเตือนด้วย SweetAlert2 ระหว่างโหลดข้อมูล
+                Swal.fire({
+                    title: 'กำลังซิงค์ข้อมูล...',
+                    text: 'กรุณารอสักครู่ กำลังเชื่อมต่อกับ Google Sheets',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                const response = await fetch(webAppUrl, { redirect: 'follow' });
                 if (response.ok) {
-                    const cloudRecords = await response.json();
-                    if (Array.isArray(cloudRecords)) {
-                        localStorage.setItem('appRecords', JSON.stringify(cloudRecords));
+                    const textData = await response.text();
+                    try {
+                        const cloudRecords = JSON.parse(textData);
+                        if (Array.isArray(cloudRecords)) {
+                            localStorage.setItem('appRecords', JSON.stringify(cloudRecords));
+                            Swal.fire({ icon: 'success', title: 'ซิงค์ข้อมูลสำเร็จ', timer: 1200, showConfirmButton: false });
+                        } else if (cloudRecords.result === 'error') {
+                            Swal.fire({ icon: 'error', title: 'เซิร์ฟเวอร์แจ้งข้อผิดพลาด', text: cloudRecords.error });
+                        } else {
+                            Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ถูกต้อง', text: 'ไม่พบรูปแบบรายการจาก Google Sheets' });
+                        }
+                    } catch (parseErr) {
+                        Swal.fire({ 
+                            icon: 'error', 
+                            title: 'ตั้งค่า Script ไม่สมบูรณ์', 
+                            text: 'กรุณาไปที่ Google Apps Script > กด Deploy (การทำให้ใช้งานได้) > จัดการการทำให้ใช้งานได้ > กดรูปดินสอเปลี่ยนเป็น "เวอร์ชันใหม่" (New version) เสมอ' 
+                        });
+                        console.error("JSON Parse Error:", textData.substring(0, 100));
                     }
+                } else {
+                    Swal.fire({ icon: 'error', title: 'เชื่อมต่อล้มเหลว', text: 'เครือข่ายมีปัญหา กรุณาลองใหม่' });
                 }
             } catch (err) {
                 console.error("ไม่สามารถเชื่อมต่อ Google Sheets เพื่อซิงค์ข้อมูลได้:", err);
+                Swal.fire({ icon: 'error', title: 'การเชื่อมต่อผิดพลาด', text: 'กรุณาตรวจสอบ URL ของ Google Script อีกครั้ง' });
             } finally {
                 renderSummary();
                 renderHistoryTable();
@@ -790,7 +830,7 @@
                 counters = counters.map(c => c.id == id ? { ...c, name } : c);
             } else {
                 if (counters.some(c => c.name.toLowerCase() === name.toLowerCase())) {
-                    alert('ชื่อเคาน์เตอร์นี้มีอยู่ในระบบแล้ว');
+                    Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: 'ชื่อเคาน์เตอร์นี้มีอยู่ในระบบแล้ว' });
                     return;
                 }
                 counters.push({ id: Date.now(), name });
@@ -800,7 +840,7 @@
             resetCounterForm();
             populateCounterDropdowns();
             renderCounterTable();
-            alert('บันทึกข้อมูลเคาน์เตอร์เรียบร้อยแล้ว');
+            Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'บันทึกข้อมูลเคาน์เตอร์เรียบร้อยแล้ว', timer: 1500, showConfirmButton: false });
         }
 
         function editCounter(id) {
@@ -813,13 +853,25 @@
         }
 
         function deleteCounter(id) {
-            if (confirm('คุณต้องการลบจุดบริการ/เคาน์เตอร์นี้ใช่หรือไม่?')) {
-                let counters = JSON.parse(localStorage.getItem('appCounters')) || defaultCounters;
-                counters = counters.filter(c => c.id != id);
-                localStorage.setItem('appCounters', JSON.stringify(counters));
-                populateCounterDropdowns();
-                renderCounterTable();
-            }
+            Swal.fire({
+                title: 'ยืนยันการลบ?',
+                text: "คุณต้องการลบจุดบริการ/เคาน์เตอร์นี้ใช่หรือไม่?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#be123c',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'ใช่, ลบเลย!',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let counters = JSON.parse(localStorage.getItem('appCounters')) || defaultCounters;
+                    counters = counters.filter(c => c.id != id);
+                    localStorage.setItem('appCounters', JSON.stringify(counters));
+                    populateCounterDropdowns();
+                    renderCounterTable();
+                    Swal.fire({ icon: 'success', title: 'ลบข้อมูลสำเร็จ', timer: 1500, showConfirmButton: false });
+                }
+            });
         }
 
         function resetCounterForm() {
@@ -866,7 +918,7 @@
                 users = users.map(u => u.id == id ? { ...u, username, name: fullName, password, role } : u);
             } else {
                 if (users.some(u => u.username === username)) {
-                    alert('Username นี้มีอยู่ในระบบแล้ว');
+                    Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: 'Username นี้มีอยู่ในระบบแล้ว' });
                     return;
                 }
                 users.push({ id: Date.now(), username, name: fullName, password, role });
@@ -876,7 +928,7 @@
             resetStaffForm();
             populateStaffDropdowns();
             renderStaffTable();
-            alert('บันทึกข้อมูลเจ้าหน้าที่เรียบร้อย');
+            Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'บันทึกข้อมูลเจ้าหน้าที่เรียบร้อย', timer: 1500, showConfirmButton: false });
         }
 
         function editStaff(id) {
@@ -892,13 +944,25 @@
         }
 
         function deleteStaff(id) {
-            if (confirm('คุณต้องการลบเจ้าหน้าที่รายนี้ใช่หรือไม่?')) {
-                let users = JSON.parse(localStorage.getItem('appUsers')) || defaultUsers;
-                users = users.filter(u => u.id != id);
-                localStorage.setItem('appUsers', JSON.stringify(users));
-                populateStaffDropdowns();
-                renderStaffTable();
-            }
+            Swal.fire({
+                title: 'ยืนยันการลบ?',
+                text: "คุณต้องการลบเจ้าหน้าที่รายนี้ใช่หรือไม่?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#be123c',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'ใช่, ลบเลย!',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let users = JSON.parse(localStorage.getItem('appUsers')) || defaultUsers;
+                    users = users.filter(u => u.id != id);
+                    localStorage.setItem('appUsers', JSON.stringify(users));
+                    populateStaffDropdowns();
+                    renderStaffTable();
+                    Swal.fire({ icon: 'success', title: 'ลบข้อมูลสำเร็จ', timer: 1500, showConfirmButton: false });
+                }
+            });
         }
 
         function resetStaffForm() {
@@ -907,6 +971,9 @@
         }
 
         function switchTab(tabName) {
+            // บันทึกสถานะแท็บ
+            sessionStorage.setItem('activeTab', tabName);
+
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('bg-white', 'text-rose-900', 'shadow-sm');
@@ -1036,14 +1103,18 @@
             }
 
             if (hours <= 0) {
-                alert('กรุณาเลือกช่วงเวลาหรือระบุเวลาเริ่มต้น-สิ้นสุดให้ถูกต้อง');
+                Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ถูกต้อง', text: 'กรุณาเลือกช่วงเวลาหรือระบุเวลาเริ่มต้น-สิ้นสุดให้ถูกต้อง' });
                 return;
             }
 
+            let rawDate = document.getElementById('dutyDate').value;
+            if(rawDate.includes('T')) rawDate = rawDate.split('T')[0];
+            if(rawDate.includes(' ')) rawDate = rawDate.split(' ')[0];
+
             const record = {
-                id: Date.now(),
+                id: Date.now().toString(),
                 type: 'regular',
-                date: document.getElementById('dutyDate').value,
+                date: rawDate,
                 staffName: document.getElementById('staffName').value,
                 counter: document.getElementById('counterLocation').value,
                 hours: hours,
@@ -1051,7 +1122,7 @@
             };
 
             saveRecordToStorage(record);
-            alert('บันทึกข้อมูลปฏิบัติงานปกติเรียบร้อยแล้ว');
+            Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', text: 'บันทึกข้อมูลปฏิบัติงานปกติเรียบร้อยแล้ว', timer: 1500, showConfirmButton: false });
             document.getElementById('formRegular').reset();
             toggleRegTimeMode();
         }
@@ -1060,7 +1131,7 @@
             e.preventDefault();
             const selected = document.querySelector('input[name="otPreset"]:checked')?.value;
             if (!selected) {
-                alert('กรุณาเลือกช่วงสถานการณ์หรือระบุเวลา OT');
+                Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบถ้วน', text: 'กรุณาเลือกช่วงสถานการณ์หรือระบุเวลา OT' });
                 return;
             }
 
@@ -1081,16 +1152,20 @@
             }
 
             if (hours <= 0) {
-                alert('กรุณาระบุเวลาเริ่มต้น-สิ้นสุด OT ให้ถูกต้อง');
+                Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ถูกต้อง', text: 'กรุณาระบุเวลาเริ่มต้น-สิ้นสุด OT ให้ถูกต้อง' });
                 return;
             }
 
             const pay = Math.round(hours * 30 * 100) / 100;
 
+            let rawDate = document.getElementById('otDate').value;
+            if(rawDate.includes('T')) rawDate = rawDate.split('T')[0];
+            if(rawDate.includes(' ')) rawDate = rawDate.split(' ')[0];
+
             const record = {
-                id: Date.now(),
+                id: Date.now().toString(),
                 type: 'ot',
-                date: document.getElementById('otDate').value,
+                date: rawDate,
                 staffName: document.getElementById('otStaffName').value,
                 counter: document.getElementById('otCounter').value,
                 hours: hours,
@@ -1098,7 +1173,7 @@
             };
 
             saveRecordToStorage(record);
-            alert('บันทึกข้อมูล OT เรียบร้อยแล้ว');
+            Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', text: 'บันทึกข้อมูล OT เรียบร้อยแล้ว', timer: 1500, showConfirmButton: false });
             document.getElementById('formOt').reset();
             toggleOtTimeMode();
         }
@@ -1112,9 +1187,7 @@
             if (webAppUrl) {
                 fetch(webAppUrl, {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'text/plain;charset=utf-8' 
-                    },
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(record)
                 })
                 .then(response => response.json())
@@ -1139,17 +1212,36 @@
             const selectedStaff = document.getElementById('summaryStaffFilter')?.value;
 
             const filtered = records.filter(r => {
-                const matchMonth = !selectedMonth || r.date.startsWith(selectedMonth);
-                const matchStaff = !selectedStaff || selectedStaff === 'ALL' || r.staffName === selectedStaff;
+                const safeDateStr = String(r.date || '').trim();
+                let matchMonth = true;
+
+                if (selectedMonth) {
+                    const d = new Date(safeDateStr);
+                    if (!isNaN(d)) {
+                        // ปรับแก้ปัญหา Timezone เลื่อนวันที่ โดยใช้ Local Time
+                        const yyyy = d.getFullYear();
+                        const mm = String(d.getMonth() + 1).padStart(2, '0');
+                        const rMonth = `${yyyy}-${mm}`;
+                        matchMonth = (rMonth === selectedMonth);
+                    } else {
+                        matchMonth = safeDateStr.startsWith(selectedMonth);
+                    }
+                }
+                
+                const rStaff = String(r.staffName || '').trim();
+                const selStaff = String(selectedStaff || '').trim();
+                const matchStaff = !selectedStaff || selectedStaff === 'ALL' || rStaff === selStaff;
+                
                 return matchMonth && matchStaff;
             });
 
             let regHours = 0, otHours = 0, otPay = 0;
             filtered.forEach(r => {
-                if (r.type === 'regular') regHours += r.hours;
+                const h = Number(r.hours) || 0;
+                if (r.type === 'regular') regHours += h;
                 if (r.type === 'ot') {
-                    otHours += r.hours;
-                    otPay += r.pay;
+                    otHours += h;
+                    otPay += Number(r.pay) || 0;
                 }
             });
 
@@ -1160,31 +1252,38 @@
             if (document.getElementById('cardRegHours')) document.getElementById('cardRegHours').innerText = `${regHours} ชม.`;
             if (document.getElementById('cardOtHours')) document.getElementById('cardOtHours').innerText = `${otHours} ชม.`;
             if (document.getElementById('cardOtPay')) document.getElementById('cardOtPay').innerText = `${otPay.toLocaleString()} บาท`;
+            
+            // ใช้เวลาปกติเท่านั้นในการคำนวณวัน
             if (document.getElementById('cardTotalDays')) document.getElementById('cardTotalDays').innerText = `${(regHours / 7).toFixed(1)} วัน`;
 
             const summaryTableBody = document.getElementById('summaryTableBody');
             if (!summaryTableBody) return;
 
             let staffListToRender = (selectedStaff && selectedStaff !== 'ALL') 
-                ? users.filter(u => u.name === selectedStaff)
+                ? users.filter(u => String(u.name).trim() === String(selectedStaff).trim())
                 : users.filter(u => u.role === 'staff' || u.role === 'admin');
 
             staffListToRender = sortUsersCustom(staffListToRender);
 
             summaryTableBody.innerHTML = staffListToRender.map((u, index) => {
-                const userRecords = filtered.filter(r => r.staffName === u.name);
+                const targetStaffName = String(u.name).trim();
+                const userRecords = filtered.filter(r => String(r.staffName || '').trim() === targetStaffName);
                 
-                let c1_borrow = 0, c1_qa = 0, c2_qa = 0, totalReg = 0, totalOt = 0, totalPay = 0;
+                let c1_borrow = 0, c1_qa = 0, c2_qa = 0, c_other = 0, totalReg = 0, totalOt = 0, totalPay = 0;
 
                 userRecords.forEach(r => {
-                    if (r.counter === 'ชั้น 1 ยืม-คืน') c1_borrow += r.hours;
-                    if (r.counter === 'ชั้น 1 ตอบคำถาม') c1_qa += r.hours;
-                    if (r.counter === 'ชั้น 2 ตอบคำถาม') c2_qa += r.hours;
+                    const h = Number(r.hours) || 0;
+                    const cName = String(r.counter || '').trim();
+                    
+                    if (cName === 'ชั้น 1 ยืม-คืน') c1_borrow += h;
+                    else if (cName === 'ชั้น 1 ตอบคำถาม') c1_qa += h;
+                    else if (cName === 'ชั้น 2 ตอบคำถาม') c2_qa += h;
+                    else c_other += h;
 
-                    if (r.type === 'regular') totalReg += r.hours;
+                    if (r.type === 'regular') totalReg += h;
                     if (r.type === 'ot') {
-                        totalOt += r.hours;
-                        totalPay += r.pay;
+                        totalOt += h;
+                        totalPay += Number(r.pay) || 0;
                     }
                 });
 
@@ -1198,6 +1297,7 @@
                         <td class="py-3 px-4 text-center">${c1_borrow ? c1_borrow.toFixed(1) : '-'}</td>
                         <td class="py-3 px-4 text-center">${c1_qa ? c1_qa.toFixed(1) : '-'}</td>
                         <td class="py-3 px-4 text-center">${c2_qa ? c2_qa.toFixed(1) : '-'}</td>
+                        <td class="py-3 px-4 text-center text-slate-500 font-medium">${c_other ? c_other.toFixed(1) : '-'}</td>
                         <td class="py-3 px-4 text-center font-semibold bg-rose-50/40 text-rose-900">${totalReg.toFixed(1)}</td>
                         <td class="py-3 px-4 text-center font-bold bg-rose-100/40 text-rose-950">${totalRegDays} วัน</td>
                         <td class="py-3 px-4 text-center font-semibold bg-amber-50/40 text-amber-900">${totalOt.toFixed(1)}</td>
@@ -1210,15 +1310,15 @@
 
         function renderHistoryTable() {
             const records = JSON.parse(localStorage.getItem('appRecords')) || [];
-            const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
+            const search = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
             const tbody = document.getElementById('historyTableBody');
             
             if (!tbody) return;
 
             const filtered = records.filter(r => 
-                r.staffName.toLowerCase().includes(search) || 
-                r.date.includes(search) || 
-                r.counter.toLowerCase().includes(search)
+                (r.staffName && String(r.staffName).toLowerCase().includes(search)) || 
+                (r.date && String(r.date).includes(search)) || 
+                (r.counter && String(r.counter).toLowerCase().includes(search))
             ).slice().reverse();
 
             if (filtered.length === 0) {
@@ -1226,9 +1326,22 @@
                 return;
             }
 
-            tbody.innerHTML = filtered.map(r => `
+            tbody.innerHTML = filtered.map(r => {
+                // จัดระเบียบการแสดงผลวันที่ให้เป็น YYYY-MM-DD เสมอ
+                let displayDate = r.date;
+                const d = new Date(r.date);
+                if (!isNaN(d)) {
+                    const yyyy = d.getFullYear();
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    displayDate = `${yyyy}-${mm}-${dd}`;
+                } else {
+                    displayDate = String(r.date).substring(0, 10);
+                }
+
+                return `
                 <tr class="hover:bg-slate-50 transition-all">
-                    <td class="py-3 px-4 font-medium text-slate-700">${r.date}</td>
+                    <td class="py-3 px-4 font-medium text-slate-700">${displayDate}</td>
                     <td class="py-3 px-4 font-medium text-slate-900">${r.staffName}</td>
                     <td class="py-3 px-4">
                         <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${r.type === 'ot' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800'}">
@@ -1239,58 +1352,108 @@
                     <td class="py-3 px-4 text-center font-bold">${r.hours} ชม.</td>
                     <td class="py-3 px-4 text-center text-emerald-700 font-semibold">${r.pay ? r.pay + ' ฿' : '-'}</td>
                     <td class="py-3 px-4 text-center">
-                        <button onclick="deleteRecord(${r.id})" class="text-rose-600 hover:text-rose-800 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                        <button onclick="deleteRecord('${r.id}')" class="text-rose-600 hover:text-rose-800 p-1"><i class="fa-solid fa-trash-can"></i></button>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
 
         function deleteRecord(id) {
-            if (confirm('คุณต้องการลบรายการนี้ใช่หรือไม่?')) {
-                let records = JSON.parse(localStorage.getItem('appRecords')) || [];
-                records = records.filter(r => r.id !== id);
-                localStorage.setItem('appRecords', JSON.stringify(records));
-                renderSummary();
-                renderHistoryTable();
-            }
+            Swal.fire({
+                title: 'ยืนยันการลบรายการ?',
+                text: "คุณต้องการลบรายการบันทึกเวลานี้ใช่หรือไม่?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#be123c',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'ใช่, ลบเลย!',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let records = JSON.parse(localStorage.getItem('appRecords')) || [];
+                    records = records.filter(r => String(r.id) !== String(id));
+                    localStorage.setItem('appRecords', JSON.stringify(records));
+                    
+                    renderSummary();
+                    renderHistoryTable();
+
+                    const webAppUrl = localStorage.getItem('webAppUrl');
+                    if (webAppUrl) {
+                        fetch(webAppUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ action: 'delete', id: String(id) })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if(data.result === 'success') {
+                                console.log('ลบข้อมูลใน Google Sheets สำเร็จ');
+                            }
+                        })
+                        .catch(err => console.error('Error delete from Google Sheets:', err));
+                    }
+                    
+                    Swal.fire({ icon: 'success', title: 'ลบข้อมูลสำเร็จ', timer: 1500, showConfirmButton: false });
+                }
+            });
         }
 
         function clearAllData() {
-            if (confirm('คำเตือน: คุณต้องการล้างประวัติการบันทึกทั้งหมดใช่หรือไม่?')) {
-                localStorage.removeItem('appRecords');
-                renderSummary();
-                renderHistoryTable();
-            }
+            Swal.fire({
+                title: 'ล้างประวัติการบันทึกทั้งหมด?',
+                text: "คำเตือน: ข้อมูลที่ล้างจะไม่สามารถกู้คืนได้ (ลบเฉพาะในหน้าเว็บ)",
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#be123c',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'ใช่, ล้างข้อมูลทั้งหมด',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem('appRecords');
+                    renderSummary();
+                    renderHistoryTable();
+                    Swal.fire({ icon: 'success', title: 'ล้างข้อมูลสำเร็จ', timer: 1500, showConfirmButton: false });
+                }
+            });
         }
 
         function saveWebAppUrl() {
             const url = document.getElementById('webAppUrlInput').value.trim();
             localStorage.setItem('webAppUrl', url);
             document.getElementById('urlStatusText').innerHTML = `<span class="text-emerald-600"><i class="fa-solid fa-circle-check mr-1"></i>บันทึก Web App URL เรียบร้อยแล้ว</span>`;
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'เชื่อมต่อสำเร็จ',
+                text: 'บันทึก Google Script URL เรียบร้อยแล้ว',
+                timer: 1500,
+                showConfirmButton: false
+            });
             syncDataFromGoogleSheets();
         }
 
-        // --- 1. ส่งออกรายการรายละเอียด (Detailed Log CSV) ---
         function exportDetailedCSV() {
             const records = JSON.parse(localStorage.getItem('appRecords')) || [];
             const selectedMonth = document.getElementById('summaryMonthPicker')?.value;
             const selectedStaff = document.getElementById('summaryStaffFilter')?.value;
 
             const filtered = records.filter(r => {
-                const matchMonth = !selectedMonth || r.date.startsWith(selectedMonth);
+                const safeDateStr = String(r.date || '');
+                const matchMonth = !selectedMonth || safeDateStr.startsWith(selectedMonth);
                 const matchStaff = !selectedStaff || selectedStaff === 'ALL' || r.staffName === selectedStaff;
                 return matchMonth && matchStaff;
             });
 
             if (filtered.length === 0) {
-                alert('ไม่พบข้อมูลรายการย่อยสำหรับส่งออกตามเงื่อนไขที่เลือก');
+                Swal.fire({ icon: 'info', title: 'ไม่พบข้อมูล', text: 'ไม่พบข้อมูลสำหรับส่งออกตามเงื่อนไขที่เลือก' });
                 return;
             }
 
             let csvContent = "\uFEFFวันที่,ชื่อผู้ปฏิบัติงาน,ประเภท,จุดบริการ/เคาน์เตอร์,ชั่วโมง,ค่าตอบแทน (บาท)\n";
             filtered.forEach(r => {
                 const typeStr = r.type === 'ot' ? 'OT' : 'ปกติ';
-                csvContent += `"${r.date}","${r.staffName}","${typeStr}","${r.counter}","${r.hours}","${r.pay || 0}"\n`;
+                csvContent += `"${r.date ? String(r.date).substring(0,10) : ''}","${r.staffName}","${typeStr}","${r.counter}","${r.hours}","${r.pay || 0}"\n`;
             });
 
             const monthTag = selectedMonth || 'ALL';
@@ -1298,7 +1461,6 @@
             downloadCSVFile(csvContent, `Detailed_Log_${monthTag}_${staffTag}.csv`);
         }
 
-        // --- 2. ส่งออกตารางสรุปประจำเดือน (Summary Report CSV) ---
         function exportSummaryCSV() {
             const records = JSON.parse(localStorage.getItem('appRecords')) || [];
             const users = JSON.parse(localStorage.getItem('appUsers')) || defaultUsers;
@@ -1306,10 +1468,16 @@
             const selectedStaff = document.getElementById('summaryStaffFilter')?.value;
 
             const filtered = records.filter(r => {
-                const matchMonth = !selectedMonth || r.date.startsWith(selectedMonth);
+                const safeDateStr = String(r.date || '');
+                const matchMonth = !selectedMonth || safeDateStr.startsWith(selectedMonth);
                 const matchStaff = !selectedStaff || selectedStaff === 'ALL' || r.staffName === selectedStaff;
                 return matchMonth && matchStaff;
             });
+            
+            if (filtered.length === 0) {
+                Swal.fire({ icon: 'info', title: 'ไม่พบข้อมูล', text: 'ไม่พบข้อมูลสำหรับส่งออกสรุปยอดตามเงื่อนไขที่เลือก' });
+                return;
+            }
 
             let staffListToRender = (selectedStaff && selectedStaff !== 'ALL') 
                 ? users.filter(u => u.name === selectedStaff)
@@ -1317,28 +1485,30 @@
 
             staffListToRender = sortUsersCustom(staffListToRender);
 
-            let csvContent = "\uFEFFลำดับ,ชื่อ-นามสกุล,ชั้น 1 (ยืม-คืน),ชั้น 1 (ตอบคำถาม),ชั้น 2 (ตอบคำถาม),ชม. ปกติ,วันปกติ (วัน),ชม. OT,รวม ชม. ทั้งหมด,ค่าตอบแทน OT (บาท)\n";
+            let csvContent = "\uFEFFลำดับ,ชื่อ-นามสกุล,ชั้น 1 (ยืม-คืน),ชั้น 1 (ตอบคำถาม),ชั้น 2 (ตอบคำถาม),จุดบริการอื่นๆ,ชม. ปกติ,วันปกติ (วัน),ชม. OT,รวม ชม. ทั้งหมด,ค่าตอบแทน OT (บาท)\n";
 
             staffListToRender.forEach((u, index) => {
                 const userRecords = filtered.filter(r => r.staffName === u.name);
-                let c1_borrow = 0, c1_qa = 0, c2_qa = 0, totalReg = 0, totalOt = 0, totalPay = 0;
+                let c1_borrow = 0, c1_qa = 0, c2_qa = 0, c_other = 0, totalReg = 0, totalOt = 0, totalPay = 0;
 
                 userRecords.forEach(r => {
-                    if (r.counter === 'ชั้น 1 ยืม-คืน') c1_borrow += r.hours;
-                    if (r.counter === 'ชั้น 1 ตอบคำถาม') c1_qa += r.hours;
-                    if (r.counter === 'ชั้น 2 ตอบคำถาม') c2_qa += r.hours;
+                    const h = Number(r.hours) || 0;
+                    if (r.counter === 'ชั้น 1 ยืม-คืน') c1_borrow += h;
+                    else if (r.counter === 'ชั้น 1 ตอบคำถาม') c1_qa += h;
+                    else if (r.counter === 'ชั้น 2 ตอบคำถาม') c2_qa += h;
+                    else c_other += h;
 
-                    if (r.type === 'regular') totalReg += r.hours;
+                    if (r.type === 'regular') totalReg += h;
                     if (r.type === 'ot') {
-                        totalOt += r.hours;
-                        totalPay += r.pay;
+                        totalOt += h;
+                        totalPay += Number(r.pay) || 0;
                     }
                 });
 
                 const grandTotalHours = Math.round((totalReg + totalOt) * 100) / 100;
                 const totalRegDays = (totalReg / 7.0).toFixed(1);
 
-                csvContent += `"${index + 1}","${u.name}","${c1_borrow.toFixed(1)}","${c1_qa.toFixed(1)}","${c2_qa.toFixed(1)}","${totalReg.toFixed(1)}","${totalRegDays}","${totalOt.toFixed(1)}","${grandTotalHours}","${Math.round(totalPay)}"\n`;
+                csvContent += `"${index + 1}","${u.name}","${c1_borrow.toFixed(1)}","${c1_qa.toFixed(1)}","${c2_qa.toFixed(1)}","${c_other.toFixed(1)}","${totalReg.toFixed(1)}","${totalRegDays}","${totalOt.toFixed(1)}","${grandTotalHours}","${Math.round(totalPay)}"\n`;
             });
 
             const monthTag = selectedMonth || 'ALL';
@@ -1346,7 +1516,6 @@
             downloadCSVFile(csvContent, `Summary_Report_${monthTag}_${staffTag}.csv`);
         }
 
-        // ฟังก์ชันช่วยดาวน์โหลดไฟล์ CSV
         function downloadCSVFile(csvContent, fileName) {
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
