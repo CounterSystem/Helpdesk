@@ -274,7 +274,7 @@
                                     </label>
                                 </div>
 
-                                <!-- 3. ช่วงปิดเทอม (เพิ่มใหม่) -->
+                                <!-- 3. ช่วงปิดเทอม -->
                                 <div class="p-4 border border-indigo-100 bg-indigo-50/30 rounded-2xl space-y-2">
                                     <span class="text-xs font-bold text-indigo-900 uppercase tracking-wider block border-b border-indigo-100 pb-1">3. ช่วงปิดเทอม</span>
                                     <label class="flex items-center p-2.5 bg-white rounded-xl border border-slate-200 cursor-pointer hover:border-rose-300">
@@ -327,21 +327,29 @@
 
             <!-- TAB 3: DASHBOARD สรุปรายเดือน -->
             <section id="content-summary" class="tab-content hidden space-y-6">
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
                     <div>
                         <h2 class="text-lg font-bold text-slate-800"><i class="fa-solid fa-chart-line text-rose-800 mr-2"></i>Dashboard สรุปสถิติประจำเดือน</h2>
                         <p class="text-xs text-slate-500">คำนวณชั่วโมงปฏิบัติงานปกติ ชั่วโมงโอที และยอดรวมค่าตอบแทน</p>
                     </div>
-                    <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                        <input type="month" id="summaryMonthPicker" onchange="renderSummary()" class="w-full sm:w-auto px-4 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-rose-800">
-                        <select id="summaryStaffFilter" onchange="renderSummary()" class="w-full sm:w-auto px-4 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-rose-800">
+                    
+                    <!-- Control Actions -->
+                    <div class="flex flex-wrap items-center gap-2.5 w-full xl:w-auto">
+                        <input type="month" id="summaryMonthPicker" onchange="renderSummary()" class="px-3.5 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-rose-800">
+                        <select id="summaryStaffFilter" onchange="renderSummary()" class="px-3.5 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-rose-800">
                             <option value="ALL">-- แสดงทุกคน --</option>
                         </select>
-                        <button type="button" onclick="syncDataFromGoogleSheets()" class="w-full sm:w-auto px-4 py-2 bg-indigo-700 hover:bg-indigo-800 text-white text-sm font-medium rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-rotate text-base"></i> ดึงข้อมูลล่าสุด
+                        
+                        <button type="button" onclick="syncDataFromGoogleSheets()" class="px-3.5 py-2 bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-semibold rounded-xl shadow-md transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-rotate"></i> ดึงข้อมูลล่าสุด
                         </button>
-                        <button type="button" onclick="exportDashboardCSV()" class="w-full sm:w-auto px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-file-csv text-base"></i> ส่งออก CSV
+
+                        <!-- ปุ่ม Export ทั้ง 2 รูปแบบ -->
+                        <button type="button" onclick="exportDetailedCSV()" class="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-xl shadow-md transition-all flex items-center gap-1.5" title="ส่งออกข้อมูลรายการย่อยละเอียด">
+                            <i class="fa-solid fa-list"></i> รายการรายละเอียด CSV
+                        </button>
+                        <button type="button" onclick="exportSummaryCSV()" class="px-3.5 py-2 bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold rounded-xl shadow-md transition-all flex items-center gap-1.5" title="ส่งออกตารางสรุปยอดรวมประจำเดือน">
+                            <i class="fa-solid fa-table"></i> ตารางสรุป CSV
                         </button>
                     </div>
                 </div>
@@ -691,12 +699,9 @@
 
             renderStaffTable();
             renderCounterTable();
-            
-            // ดึงข้อมูลล่าสุดจาก Google Apps Script เมื่อเข้าสู่ระบบ
             syncDataFromGoogleSheets();
         }
 
-        // --- เพิ่มใหม่: ฟังก์ชันดึงข้อมูลล่าสุดจาก Google Sheets แก้ปัญหาเปลี่ยนเครื่องแล้ว Dashboard ข้อมูลหาย ---
         async function syncDataFromGoogleSheets() {
             const webAppUrl = localStorage.getItem('webAppUrl');
             if (!webAppUrl) {
@@ -990,7 +995,6 @@
             calculateOtPreview();
         }
 
-        // --- แก้ไข: คำนวณช่วงเวลา OT รวมปิดเทอม เสาร์-อาทิตย์ (5.5 ชม.) ---
         function calculateOtPreview() {
             const selected = document.querySelector('input[name="otPreset"]:checked')?.value;
             let hours = 0;
@@ -1006,8 +1010,8 @@
                         case 'norm_weekend': hours = 7.0; break;
                         case 'exam_weekday': hours = 5.5; break;
                         case 'exam_weekend': hours = 10.5; break;
-                        case 'vacation_sat': hours = 5.5; break; // เพิ่มเติมช่วงปิดเทอม วันเสาร์
-                        case 'vacation_sun': hours = 5.5; break; // เพิ่มเติมช่วงปิดเทอม วันอาทิตย์
+                        case 'vacation_sat': hours = 5.5; break;
+                        case 'vacation_sun': hours = 5.5; break;
                     }
                 }
             }
@@ -1052,7 +1056,6 @@
             toggleRegTimeMode();
         }
 
-        // --- แก้ไข: บันทึกข้อมูลช่วงเวลา OT ปิดเทอม เสาร์-อาทิตย์ ---
         function saveOtRecord(e) {
             e.preventDefault();
             const selected = document.querySelector('input[name="otPreset"]:checked')?.value;
@@ -1072,8 +1075,8 @@
                     case 'norm_weekend': hours = 7.0; break;
                     case 'exam_weekday': hours = 5.5; break;
                     case 'exam_weekend': hours = 10.5; break;
-                    case 'vacation_sat': hours = 5.5; break; // เพิ่มเติมช่วงปิดเทอม วันเสาร์
-                    case 'vacation_sun': hours = 5.5; break; // เพิ่มเติมช่วงปิดเทอม วันอาทิตย์
+                    case 'vacation_sat': hours = 5.5; break;
+                    case 'vacation_sun': hours = 5.5; break;
                 }
             }
 
@@ -1129,7 +1132,6 @@
             renderHistoryTable();
         }
 
-        // --- แก้ไข: สรุปผลรายคนประจำเดือน เพิ่มการแสดงผลจำนวนวันทำงานปกติ (วัน) ---
         function renderSummary() {
             const records = JSON.parse(localStorage.getItem('appRecords')) || [];
             const users = JSON.parse(localStorage.getItem('appUsers')) || defaultUsers;
@@ -1187,7 +1189,7 @@
                 });
 
                 const grandTotalHours = Math.round((totalReg + totalOt) * 100) / 100;
-                const totalRegDays = (totalReg / 7.0).toFixed(1); // คิดจำนวนวันเวลาปกติ
+                const totalRegDays = (totalReg / 7.0).toFixed(1);
 
                 return `
                     <tr class="hover:bg-slate-50 transition-all">
@@ -1268,22 +1270,88 @@
             syncDataFromGoogleSheets();
         }
 
-        function exportDashboardCSV() {
+        // --- 1. ส่งออกรายการรายละเอียด (Detailed Log CSV) ---
+        function exportDetailedCSV() {
             const records = JSON.parse(localStorage.getItem('appRecords')) || [];
-            if (records.length === 0) {
-                alert('ไม่มีข้อมูลสำหรับส่งออก');
+            const selectedMonth = document.getElementById('summaryMonthPicker')?.value;
+            const selectedStaff = document.getElementById('summaryStaffFilter')?.value;
+
+            const filtered = records.filter(r => {
+                const matchMonth = !selectedMonth || r.date.startsWith(selectedMonth);
+                const matchStaff = !selectedStaff || selectedStaff === 'ALL' || r.staffName === selectedStaff;
+                return matchMonth && matchStaff;
+            });
+
+            if (filtered.length === 0) {
+                alert('ไม่พบข้อมูลรายการย่อยสำหรับส่งออกตามเงื่อนไขที่เลือก');
                 return;
             }
 
-            let csvContent = "\uFEFFวันที่,ชื่อผู้ปฏิบัติงาน,ประเภท,จุดบริการ,ชั่วโมง,ค่าตอบแทน(บาท)\n";
-            records.forEach(r => {
-                csvContent += `"${r.date}","${r.staffName}","${r.type === 'ot' ? 'OT' : 'ปกติ'}","${r.counter}","${r.hours}","${r.pay}"\n`;
+            let csvContent = "\uFEFFวันที่,ชื่อผู้ปฏิบัติงาน,ประเภท,จุดบริการ/เคาน์เตอร์,ชั่วโมง,ค่าตอบแทน (บาท)\n";
+            filtered.forEach(r => {
+                const typeStr = r.type === 'ot' ? 'OT' : 'ปกติ';
+                csvContent += `"${r.date}","${r.staffName}","${typeStr}","${r.counter}","${r.hours}","${r.pay || 0}"\n`;
             });
 
+            const monthTag = selectedMonth || 'ALL';
+            const staffTag = (selectedStaff && selectedStaff !== 'ALL') ? selectedStaff : 'ทุกคน';
+            downloadCSVFile(csvContent, `Detailed_Log_${monthTag}_${staffTag}.csv`);
+        }
+
+        // --- 2. ส่งออกตารางสรุปประจำเดือน (Summary Report CSV) ---
+        function exportSummaryCSV() {
+            const records = JSON.parse(localStorage.getItem('appRecords')) || [];
+            const users = JSON.parse(localStorage.getItem('appUsers')) || defaultUsers;
+            const selectedMonth = document.getElementById('summaryMonthPicker')?.value;
+            const selectedStaff = document.getElementById('summaryStaffFilter')?.value;
+
+            const filtered = records.filter(r => {
+                const matchMonth = !selectedMonth || r.date.startsWith(selectedMonth);
+                const matchStaff = !selectedStaff || selectedStaff === 'ALL' || r.staffName === selectedStaff;
+                return matchMonth && matchStaff;
+            });
+
+            let staffListToRender = (selectedStaff && selectedStaff !== 'ALL') 
+                ? users.filter(u => u.name === selectedStaff)
+                : users.filter(u => u.role === 'staff' || u.role === 'admin');
+
+            staffListToRender = sortUsersCustom(staffListToRender);
+
+            let csvContent = "\uFEFFลำดับ,ชื่อ-นามสกุล,ชั้น 1 (ยืม-คืน),ชั้น 1 (ตอบคำถาม),ชั้น 2 (ตอบคำถาม),ชม. ปกติ,วันปกติ (วัน),ชม. OT,รวม ชม. ทั้งหมด,ค่าตอบแทน OT (บาท)\n";
+
+            staffListToRender.forEach((u, index) => {
+                const userRecords = filtered.filter(r => r.staffName === u.name);
+                let c1_borrow = 0, c1_qa = 0, c2_qa = 0, totalReg = 0, totalOt = 0, totalPay = 0;
+
+                userRecords.forEach(r => {
+                    if (r.counter === 'ชั้น 1 ยืม-คืน') c1_borrow += r.hours;
+                    if (r.counter === 'ชั้น 1 ตอบคำถาม') c1_qa += r.hours;
+                    if (r.counter === 'ชั้น 2 ตอบคำถาม') c2_qa += r.hours;
+
+                    if (r.type === 'regular') totalReg += r.hours;
+                    if (r.type === 'ot') {
+                        totalOt += r.hours;
+                        totalPay += r.pay;
+                    }
+                });
+
+                const grandTotalHours = Math.round((totalReg + totalOt) * 100) / 100;
+                const totalRegDays = (totalReg / 7.0).toFixed(1);
+
+                csvContent += `"${index + 1}","${u.name}","${c1_borrow.toFixed(1)}","${c1_qa.toFixed(1)}","${c2_qa.toFixed(1)}","${totalReg.toFixed(1)}","${totalRegDays}","${totalOt.toFixed(1)}","${grandTotalHours}","${Math.round(totalPay)}"\n`;
+            });
+
+            const monthTag = selectedMonth || 'ALL';
+            const staffTag = (selectedStaff && selectedStaff !== 'ALL') ? selectedStaff : 'ทุกคน';
+            downloadCSVFile(csvContent, `Summary_Report_${monthTag}_${staffTag}.csv`);
+        }
+
+        // ฟังก์ชันช่วยดาวน์โหลดไฟล์ CSV
+        function downloadCSVFile(csvContent, fileName) {
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", `OT_Counter_Report_${new Date().toISOString().slice(0,10)}.csv`);
+            link.setAttribute("download", fileName);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
