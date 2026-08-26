@@ -235,7 +235,8 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-2">เลือกช่วงสถานการณ์การทำงาน OT *</label>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <!-- 1. เวลาปกติ -->
                                 <div class="p-4 border border-slate-200 rounded-2xl bg-slate-50/50 space-y-2">
                                     <span class="text-xs font-bold text-slate-600 uppercase tracking-wider block border-b pb-1">1. เวลาปกติ</span>
                                     <label class="flex items-center p-2.5 bg-white rounded-xl border border-slate-200 cursor-pointer hover:border-rose-300">
@@ -254,6 +255,7 @@
                                     </label>
                                 </div>
 
+                                <!-- 2. ช่วงสอบ -->
                                 <div class="p-4 border border-rose-100 bg-rose-50/30 rounded-2xl space-y-2">
                                     <span class="text-xs font-bold text-rose-900 uppercase tracking-wider block border-b border-rose-100 pb-1">2. ช่วงสอบ</span>
                                     <label class="flex items-center p-2.5 bg-white rounded-xl border border-slate-200 cursor-pointer hover:border-rose-300">
@@ -271,13 +273,32 @@
                                         </div>
                                     </label>
                                 </div>
+
+                                <!-- 3. ช่วงปิดเทอม (เพิ่มใหม่) -->
+                                <div class="p-4 border border-indigo-100 bg-indigo-50/30 rounded-2xl space-y-2">
+                                    <span class="text-xs font-bold text-indigo-900 uppercase tracking-wider block border-b border-indigo-100 pb-1">3. ช่วงปิดเทอม</span>
+                                    <label class="flex items-center p-2.5 bg-white rounded-xl border border-slate-200 cursor-pointer hover:border-rose-300">
+                                        <input type="radio" name="otPreset" value="vacation_sat" onchange="toggleOtTimeMode()" class="text-rose-800 accent-rose-800">
+                                        <div class="ml-2.5 text-xs">
+                                            <span class="font-semibold text-slate-800 block">วันเสาร์ (10.00 - 16.30 น.)</span>
+                                            <span class="text-slate-500">รวม 5.5 ชั่วโมง (หักพัก 1 ชม.) (165 บาท)</span>
+                                        </div>
+                                    </label>
+                                    <label class="flex items-center p-2.5 bg-white rounded-xl border border-slate-200 cursor-pointer hover:border-rose-300">
+                                        <input type="radio" name="otPreset" value="vacation_sun" onchange="toggleOtTimeMode()" class="text-rose-800 accent-rose-800">
+                                        <div class="ml-2.5 text-xs">
+                                            <span class="font-semibold text-slate-800 block">วันอาทิตย์ (10.00 - 16.30 น.)</span>
+                                            <span class="text-slate-500">รวม 5.5 ชั่วโมง (หักพัก 1 ชม.) (165 บาท)</span>
+                                        </div>
+                                    </label>
+                                </div>
                             </div>
 
                             <!-- OT CUSTOM TIME OPTION -->
                             <div class="mt-4 p-4 border border-amber-200 bg-amber-50/30 rounded-2xl space-y-3">
                                 <label class="flex items-center cursor-pointer">
                                     <input type="radio" name="otPreset" value="custom" onchange="toggleOtTimeMode()" class="text-rose-800 accent-rose-800">
-                                    <span class="ml-2.5 text-xs font-bold text-amber-900"><i class="fa-solid fa-clock-rotate-left mr-1"></i>3. ระบุเวลาปฏิบัติงาน OT เอง (15 นาที, 1-3 ชม. ฯลฯ)</span>
+                                    <span class="ml-2.5 text-xs font-bold text-amber-900"><i class="fa-solid fa-clock-rotate-left mr-1"></i>4. ระบุเวลาปฏิบัติงาน OT เอง (15 นาที, 1-3 ชม. ฯลฯ)</span>
                                 </label>
                                 <div id="otCustomContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                                     <div>
@@ -316,6 +337,9 @@
                         <select id="summaryStaffFilter" onchange="renderSummary()" class="w-full sm:w-auto px-4 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-rose-800">
                             <option value="ALL">-- แสดงทุกคน --</option>
                         </select>
+                        <button type="button" onclick="syncDataFromGoogleSheets()" class="w-full sm:w-auto px-4 py-2 bg-indigo-700 hover:bg-indigo-800 text-white text-sm font-medium rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-rotate text-base"></i> ดึงข้อมูลล่าสุด
+                        </button>
                         <button type="button" onclick="exportDashboardCSV()" class="w-full sm:w-auto px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
                             <i class="fa-solid fa-file-csv text-base"></i> ส่งออก CSV
                         </button>
@@ -348,7 +372,7 @@
                     <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-sm flex items-center gap-4">
                         <div class="p-3.5 bg-slate-100 text-slate-700 rounded-2xl border border-slate-200"><i class="fa-solid fa-calendar-day text-2xl"></i></div>
                         <div>
-                            <p class="text-xs text-slate-500 font-medium">คิดเป็นจำนวนวัน</p>
+                            <p class="text-xs text-slate-500 font-medium">คิดเป็นจำนวนวันปกติ</p>
                             <h3 class="text-2xl font-bold text-slate-800" id="cardTotalDays">0 วัน</h3>
                         </div>
                     </div>
@@ -366,6 +390,7 @@
                                     <th class="py-3.5 px-4 text-center">ชั้น 1 (ตอบคำถาม)</th>
                                     <th class="py-3.5 px-4 text-center">ชั้น 2 (ตอบคำถาม)</th>
                                     <th class="py-3.5 px-4 text-center bg-rose-50/60 text-rose-900 font-bold">ชม. ปกติ</th>
+                                    <th class="py-3.5 px-4 text-center bg-rose-100/60 text-rose-950 font-bold">วันปกติ (วัน)</th>
                                     <th class="py-3.5 px-4 text-center bg-amber-50/60 text-amber-900 font-bold">ชม. OT</th>
                                     <th class="py-3.5 px-4 text-center font-bold">รวม ชม. ทั้งหมด</th>
                                     <th class="py-3.5 px-4 text-center text-emerald-800 bg-emerald-50/60 font-bold">ค่าตอบแทน OT (บาท)</th>
@@ -434,7 +459,7 @@
                     <p id="urlStatusText" class="text-xs mt-2.5 font-medium"></p>
                 </div>
 
-                <!-- 2. จัดการข้อมูลเคาน์เตอร์ / จุดบริการ (ส่วนเพิ่มใหม่) -->
+                <!-- 2. จัดการข้อมูลเคาน์เตอร์ / จุดบริการ -->
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 md:p-8">
                     <div class="flex items-center gap-3 border-b border-slate-100 pb-4 mb-6">
                         <div class="p-3 bg-purple-50 text-purple-800 rounded-2xl border border-purple-100"><i class="fa-solid fa-desktop text-xl"></i></div>
@@ -588,7 +613,6 @@
             if(document.getElementById('otDate')) document.getElementById('otDate').value = today;
             if(document.getElementById('summaryMonthPicker')) document.getElementById('summaryMonthPicker').value = currentMonth;
 
-            // แก้ไข: ฝัง Web App URL ของคุณเป็นค่าเริ่มต้น เพื่อความสะดวก
             const defaultWebAppUrl = "https://script.google.com/macros/s/AKfycbwgy2wZZFoi7Jt_QyVYp_f1uFG023MwqsVqFfFpySEZ8eGJIJcIEtP3LVAfGpeTgzEqfg/exec";
             const savedUrl = localStorage.getItem('webAppUrl') || defaultWebAppUrl;
             if (document.getElementById('webAppUrlInput')) {
@@ -667,11 +691,36 @@
 
             renderStaffTable();
             renderCounterTable();
-            renderSummary();
-            renderHistoryTable();
+            
+            // ดึงข้อมูลล่าสุดจาก Google Apps Script เมื่อเข้าสู่ระบบ
+            syncDataFromGoogleSheets();
         }
 
-        // --- ดึงรายชื่อเจ้าหน้าที่ลง Dropdown ---
+        // --- เพิ่มใหม่: ฟังก์ชันดึงข้อมูลล่าสุดจาก Google Sheets แก้ปัญหาเปลี่ยนเครื่องแล้ว Dashboard ข้อมูลหาย ---
+        async function syncDataFromGoogleSheets() {
+            const webAppUrl = localStorage.getItem('webAppUrl');
+            if (!webAppUrl) {
+                renderSummary();
+                renderHistoryTable();
+                return;
+            }
+
+            try {
+                const response = await fetch(webAppUrl);
+                if (response.ok) {
+                    const cloudRecords = await response.json();
+                    if (Array.isArray(cloudRecords)) {
+                        localStorage.setItem('appRecords', JSON.stringify(cloudRecords));
+                    }
+                }
+            } catch (err) {
+                console.error("ไม่สามารถเชื่อมต่อ Google Sheets เพื่อซิงค์ข้อมูลได้:", err);
+            } finally {
+                renderSummary();
+                renderHistoryTable();
+            }
+        }
+
         function populateStaffDropdowns() {
             const users = JSON.parse(localStorage.getItem('appUsers')) || defaultUsers;
             const staffList = sortUsersCustom(users.filter(u => u.role === 'staff' || u.role === 'admin'));
@@ -687,7 +736,6 @@
             }
         }
 
-        // --- ดึงจุดบริการ/เคาน์เตอร์ลง Dropdown (ปรับเปลี่ยนแบบ Dynamic) ---
         function populateCounterDropdowns() {
             const counters = JSON.parse(localStorage.getItem('appCounters')) || defaultCounters;
             const counterOptions = counters.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
@@ -703,7 +751,6 @@
             }
         }
 
-        // --- จัดการเคาน์เตอร์ (CRUD COUNTERS) ---
         function renderCounterTable() {
             const tbody = document.getElementById('counterTableBody');
             if (!tbody) return;
@@ -775,7 +822,6 @@
             document.getElementById('formCounter').reset();
         }
 
-        // --- จัดการเจ้าหน้าที่ (CRUD STAFF) ---
         function renderStaffTable() {
             const tbody = document.getElementById('staffTableBody');
             if (!tbody) return;
@@ -872,7 +918,6 @@
             }
         }
 
-        // --- โหมดการระบุเวลาปฏิบัติงาน ---
         function toggleRegTimeMode() {
             const mode = document.querySelector('input[name="regTimeType"]:checked').value;
             if (mode === 'preset') {
@@ -945,6 +990,7 @@
             calculateOtPreview();
         }
 
+        // --- แก้ไข: คำนวณช่วงเวลา OT รวมปิดเทอม เสาร์-อาทิตย์ (5.5 ชม.) ---
         function calculateOtPreview() {
             const selected = document.querySelector('input[name="otPreset"]:checked')?.value;
             let hours = 0;
@@ -960,6 +1006,8 @@
                         case 'norm_weekend': hours = 7.0; break;
                         case 'exam_weekday': hours = 5.5; break;
                         case 'exam_weekend': hours = 10.5; break;
+                        case 'vacation_sat': hours = 5.5; break; // เพิ่มเติมช่วงปิดเทอม วันเสาร์
+                        case 'vacation_sun': hours = 5.5; break; // เพิ่มเติมช่วงปิดเทอม วันอาทิตย์
                     }
                 }
             }
@@ -1004,6 +1052,7 @@
             toggleRegTimeMode();
         }
 
+        // --- แก้ไข: บันทึกข้อมูลช่วงเวลา OT ปิดเทอม เสาร์-อาทิตย์ ---
         function saveOtRecord(e) {
             e.preventDefault();
             const selected = document.querySelector('input[name="otPreset"]:checked')?.value;
@@ -1023,6 +1072,8 @@
                     case 'norm_weekend': hours = 7.0; break;
                     case 'exam_weekday': hours = 5.5; break;
                     case 'exam_weekend': hours = 10.5; break;
+                    case 'vacation_sat': hours = 5.5; break; // เพิ่มเติมช่วงปิดเทอม วันเสาร์
+                    case 'vacation_sun': hours = 5.5; break; // เพิ่มเติมช่วงปิดเทอม วันอาทิตย์
                 }
             }
 
@@ -1056,7 +1107,6 @@
 
             const webAppUrl = localStorage.getItem('webAppUrl');
             if (webAppUrl) {
-                // แก้ไข: ปรับแต่ง Headers เพื่อป้องกัน CORS Error
                 fetch(webAppUrl, {
                     method: 'POST',
                     headers: { 
@@ -1079,6 +1129,7 @@
             renderHistoryTable();
         }
 
+        // --- แก้ไข: สรุปผลรายคนประจำเดือน เพิ่มการแสดงผลจำนวนวันทำงานปกติ (วัน) ---
         function renderSummary() {
             const records = JSON.parse(localStorage.getItem('appRecords')) || [];
             const users = JSON.parse(localStorage.getItem('appUsers')) || defaultUsers;
@@ -1107,7 +1158,6 @@
             if (document.getElementById('cardRegHours')) document.getElementById('cardRegHours').innerText = `${regHours} ชม.`;
             if (document.getElementById('cardOtHours')) document.getElementById('cardOtHours').innerText = `${otHours} ชม.`;
             if (document.getElementById('cardOtPay')) document.getElementById('cardOtPay').innerText = `${otPay.toLocaleString()} บาท`;
-            // แก้ไข: ให้หาร 7 เฉพาะชั่วโมงปกติ (regHours) เท่านั้น ไม่รวม otHours
             if (document.getElementById('cardTotalDays')) document.getElementById('cardTotalDays').innerText = `${(regHours / 7).toFixed(1)} วัน`;
 
             const summaryTableBody = document.getElementById('summaryTableBody');
@@ -1137,6 +1187,7 @@
                 });
 
                 const grandTotalHours = Math.round((totalReg + totalOt) * 100) / 100;
+                const totalRegDays = (totalReg / 7.0).toFixed(1); // คิดจำนวนวันเวลาปกติ
 
                 return `
                     <tr class="hover:bg-slate-50 transition-all">
@@ -1146,6 +1197,7 @@
                         <td class="py-3 px-4 text-center">${c1_qa ? c1_qa.toFixed(1) : '-'}</td>
                         <td class="py-3 px-4 text-center">${c2_qa ? c2_qa.toFixed(1) : '-'}</td>
                         <td class="py-3 px-4 text-center font-semibold bg-rose-50/40 text-rose-900">${totalReg.toFixed(1)}</td>
+                        <td class="py-3 px-4 text-center font-bold bg-rose-100/40 text-rose-950">${totalRegDays} วัน</td>
                         <td class="py-3 px-4 text-center font-semibold bg-amber-50/40 text-amber-900">${totalOt.toFixed(1)}</td>
                         <td class="py-3 px-4 text-center font-bold text-slate-900">${grandTotalHours}</td>
                         <td class="py-3 px-4 text-center font-bold text-emerald-700 bg-emerald-50/40">${Math.round(totalPay).toLocaleString()}</td>
@@ -1213,6 +1265,7 @@
             const url = document.getElementById('webAppUrlInput').value.trim();
             localStorage.setItem('webAppUrl', url);
             document.getElementById('urlStatusText').innerHTML = `<span class="text-emerald-600"><i class="fa-solid fa-circle-check mr-1"></i>บันทึก Web App URL เรียบร้อยแล้ว</span>`;
+            syncDataFromGoogleSheets();
         }
 
         function exportDashboardCSV() {
