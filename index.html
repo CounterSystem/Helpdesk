@@ -119,6 +119,10 @@
                     </div>
 
                     <form id="formRegular" onsubmit="saveRegularRecord(event)" class="space-y-6">
+                        <div id="regularEditNotice" class="hidden items-center justify-between gap-3 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+                            <span><i class="fa-solid fa-pen-to-square mr-1.5"></i>กำลังแก้ไขรายการเดิม ระบบจะบันทึกทับด้วย Record ID เดิม</span>
+                            <button type="button" onclick="cancelRecordEdit()" class="whitespace-nowrap rounded-xl bg-white px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-sm">ยกเลิกการแก้ไข</button>
+                        </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-700 mb-1.5">วันที่ปฏิบัติงาน *</label>
@@ -205,7 +209,7 @@
 
                         <div class="flex flex-col sm:flex-row items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-200 gap-4">
                             <span class="text-sm font-bold text-slate-800" id="regularPreviewText"><i class="fa-solid fa-calculator text-rose-700 mr-1.5"></i>คำนวณรวม: 0 ชั่วโมง (0 วัน)</span>
-                            <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-rose-800 hover:bg-rose-900 text-white text-sm font-medium rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                            <button type="submit" id="regularSubmitButton" class="w-full sm:w-auto px-8 py-3 bg-rose-800 hover:bg-rose-900 text-white text-sm font-medium rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูลปฏิบัติงานปกติ
                             </button>
                         </div>
@@ -225,6 +229,10 @@
                     </div>
 
                     <form id="formOt" onsubmit="saveOtRecord(event)" class="space-y-6">
+                        <div id="otEditNotice" class="hidden items-center justify-between gap-3 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+                            <span><i class="fa-solid fa-pen-to-square mr-1.5"></i>กำลังแก้ไขรายการ OT เดิม ระบบจะบันทึกทับด้วย Record ID เดิม</span>
+                            <button type="button" onclick="cancelRecordEdit()" class="whitespace-nowrap rounded-xl bg-white px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-sm">ยกเลิกการแก้ไข</button>
+                        </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-700 mb-1.5">วันที่ปฏิบัติงาน OT *</label>
@@ -326,7 +334,7 @@
                             <div id="otPreviewText" class="text-sm font-bold text-amber-900">
                                 <i class="fa-solid fa-coins text-amber-600 mr-1.5"></i>รวม OT: 0 ชั่วโมง | คิดเป็นเงิน: 0 บาท
                             </div>
-                            <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-amber-700 hover:bg-amber-800 text-white text-sm font-medium rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                            <button type="submit" id="otSubmitButton" class="w-full sm:w-auto px-8 py-3 bg-amber-700 hover:bg-amber-800 text-white text-sm font-medium rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูล OT
                             </button>
                         </div>
@@ -597,7 +605,11 @@
             { id: 3, name: 'ชั้น 2 ตอบคำถาม' }
         ];
 
+        const DEFAULT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz4gPkvG97UigTY7Ljq6d4IsJt8emwI-Cnviugo112dQ-5C8Tr9SsGXT0Hz5obxUogiow/exec";
+        const WEB_APP_URL_VERSION = '2026-08-26-v2';
+
         let currentUser = null;
+        let editingRecordId = null;
 
         function sortUsersCustom(usersList) {
             return [...usersList].sort((a, b) => {
@@ -626,12 +638,15 @@
             if(document.getElementById('otDate')) document.getElementById('otDate').value = today;
             if(document.getElementById('summaryMonthPicker')) document.getElementById('summaryMonthPicker').value = currentMonth;
 
-            const defaultWebAppUrl = "https://script.google.com/macros/s/AKfycbwgy2wZZFoi7Jt_QyVYp_f1uFG023MwqsVqFfFpySEZ8eGJIJcIEtP3LVAfGpeTgzEqfg/exec";
-            const savedUrl = localStorage.getItem('webAppUrl') || defaultWebAppUrl;
+            let savedUrl = localStorage.getItem('webAppUrl');
+            if (!savedUrl || localStorage.getItem('webAppUrlVersion') !== WEB_APP_URL_VERSION) {
+                savedUrl = DEFAULT_WEB_APP_URL;
+            }
             if (document.getElementById('webAppUrlInput')) {
                 document.getElementById('webAppUrlInput').value = savedUrl;
             }
-            localStorage.setItem('webAppUrl', savedUrl); 
+            localStorage.setItem('webAppUrl', savedUrl);
+            localStorage.setItem('webAppUrlVersion', WEB_APP_URL_VERSION);
 
             populateCounterDropdowns();
             checkSession();
@@ -1087,7 +1102,7 @@
                 `<i class="fa-solid fa-coins text-amber-600 mr-1.5"></i>รวม OT: ${hours} ชั่วโมง | คิดเป็นเงิน: ${pay} บาท`;
         }
 
-        function saveRegularRecord(e) {
+        async function saveRegularRecord(e) {
             e.preventDefault();
             const mode = document.querySelector('input[name="regTimeType"]:checked').value;
             let hours = 0;
@@ -1112,7 +1127,7 @@
             if(rawDate.includes(' ')) rawDate = rawDate.split(' ')[0];
 
             const record = {
-                id: Date.now().toString(),
+                id: editingRecordId || Date.now().toString(),
                 type: 'regular',
                 date: rawDate,
                 staffName: document.getElementById('staffName').value,
@@ -1121,13 +1136,24 @@
                 pay: 0
             };
 
-            saveRecordToStorage(record);
-            Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', text: 'บันทึกข้อมูลปฏิบัติงานปกติเรียบร้อยแล้ว', timer: 1500, showConfirmButton: false });
-            document.getElementById('formRegular').reset();
-            toggleRegTimeMode();
+            const action = editingRecordId ? 'update' : 'create';
+
+            try {
+                await saveRecordToStorage(record, action);
+                Swal.fire({
+                    icon: 'success',
+                    title: action === 'update' ? 'แก้ไขสำเร็จ!' : 'บันทึกสำเร็จ!',
+                    text: action === 'update' ? 'อัปเดตรายการใน Google Sheets เรียบร้อยแล้ว' : 'บันทึกข้อมูลปฏิบัติงานปกติเรียบร้อยแล้ว',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                resetRecordForms();
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'บันทึกไม่สำเร็จ', text: err.message || String(err) });
+            }
         }
 
-        function saveOtRecord(e) {
+        async function saveOtRecord(e) {
             e.preventDefault();
             const selected = document.querySelector('input[name="otPreset"]:checked')?.value;
             if (!selected) {
@@ -1163,7 +1189,7 @@
             if(rawDate.includes(' ')) rawDate = rawDate.split(' ')[0];
 
             const record = {
-                id: Date.now().toString(),
+                id: editingRecordId || Date.now().toString(),
                 type: 'ot',
                 date: rawDate,
                 staffName: document.getElementById('otStaffName').value,
@@ -1172,34 +1198,72 @@
                 pay: pay
             };
 
-            saveRecordToStorage(record);
-            Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', text: 'บันทึกข้อมูล OT เรียบร้อยแล้ว', timer: 1500, showConfirmButton: false });
-            document.getElementById('formOt').reset();
-            toggleOtTimeMode();
+            const action = editingRecordId ? 'update' : 'create';
+
+            try {
+                await saveRecordToStorage(record, action);
+                Swal.fire({
+                    icon: 'success',
+                    title: action === 'update' ? 'แก้ไขสำเร็จ!' : 'บันทึกสำเร็จ!',
+                    text: action === 'update' ? 'อัปเดตรายการ OT ใน Google Sheets เรียบร้อยแล้ว' : 'บันทึกข้อมูล OT เรียบร้อยแล้ว',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                resetRecordForms();
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'บันทึกไม่สำเร็จ', text: err.message || String(err) });
+            }
         }
 
-        function saveRecordToStorage(record) {
-            const records = JSON.parse(localStorage.getItem('appRecords')) || [];
-            records.push(record);
-            localStorage.setItem('appRecords', JSON.stringify(records));
+        async function verifyUpdateSupport(webAppUrl) {
+            const healthUrl = new URL(webAppUrl);
+            healthUrl.searchParams.set('action', 'health');
+            healthUrl.searchParams.set('_', Date.now().toString());
 
+            const response = await fetch(healthUrl.toString(), { redirect: 'follow', cache: 'no-store' });
+            if (!response.ok) throw new Error('ไม่สามารถตรวจสอบเวอร์ชัน Google Apps Script ได้');
+
+            const data = await response.json();
+            if (Number(data.apiVersion) < 2 || !Array.isArray(data.features) || !data.features.includes('update')) {
+                throw new Error('Google Apps Script ยังเป็นรุ่นเดิม กรุณาวางโค้ดจากไฟล์ google-apps-script.gs แล้ว Deploy เป็นเวอร์ชันใหม่ก่อนแก้ไขรายการ');
+            }
+        }
+
+        async function saveRecordToStorage(record, action = 'create') {
             const webAppUrl = localStorage.getItem('webAppUrl');
             if (webAppUrl) {
-                fetch(webAppUrl, {
+                if (action === 'update') await verifyUpdateSupport(webAppUrl);
+
+                Swal.fire({
+                    title: action === 'update' ? 'กำลังอัปเดตรายการ...' : 'กำลังบันทึกข้อมูล...',
+                    text: 'กรุณารอสักครู่ กำลังเชื่อมต่อกับ Google Sheets',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                const response = await fetch(webAppUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(record)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if(data.result === 'success') {
-                        console.log('บันทึกข้อมูลลง Google Sheet สำเร็จ');
-                    } else {
-                        console.error('พบปัญหาฝั่งเซิร์ฟเวอร์:', data.error);
-                    }
-                })
-                .catch(err => console.error('Error sync Google Sheets:', err));
+                    body: JSON.stringify({ ...record, action })
+                });
+
+                if (!response.ok) throw new Error('Google Apps Script ตอบกลับผิดพลาด');
+                const data = await response.json();
+                if (data.result !== 'success') {
+                    throw new Error(data.error || data.message || 'Google Sheets ไม่สามารถบันทึกข้อมูลได้');
+                }
             }
+
+            const records = JSON.parse(localStorage.getItem('appRecords')) || [];
+            const existingIndex = records.findIndex(r => String(r.id) === String(record.id));
+            if (action === 'update' && existingIndex !== -1) {
+                records[existingIndex] = record;
+            } else if (existingIndex === -1) {
+                records.push(record);
+            } else {
+                records[existingIndex] = record;
+            }
+            localStorage.setItem('appRecords', JSON.stringify(records));
 
             renderSummary();
             renderHistoryTable();
@@ -1308,6 +1372,127 @@
             }).join('');
         }
 
+        function setSelectValue(selectId, value) {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+
+            const hasOption = Array.from(select.options).some(option => option.value === value);
+            if (!hasOption && value) {
+                select.add(new Option(value, value));
+            }
+            select.value = value;
+        }
+
+        function setCustomDuration(startInputId, endInputId, hours) {
+            const durationMinutes = Math.max(1, Math.round((Number(hours) || 0) * 60));
+            let startMinutes = 8 * 60;
+            if (startMinutes + durationMinutes >= 24 * 60) startMinutes = 0;
+
+            const endMinutes = Math.min(startMinutes + durationMinutes, (24 * 60) - 1);
+            const formatTime = totalMinutes => {
+                const hh = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
+                const mm = String(totalMinutes % 60).padStart(2, '0');
+                return `${hh}:${mm}`;
+            };
+
+            document.getElementById(startInputId).value = formatTime(startMinutes);
+            document.getElementById(endInputId).value = formatTime(endMinutes);
+        }
+
+        function resetRecordForms() {
+            editingRecordId = null;
+            document.getElementById('formRegular').reset();
+            document.getElementById('formOt').reset();
+
+            document.getElementById('regularEditNotice').classList.add('hidden');
+            document.getElementById('regularEditNotice').classList.remove('flex');
+            document.getElementById('otEditNotice').classList.add('hidden');
+            document.getElementById('otEditNotice').classList.remove('flex');
+
+            document.getElementById('regularSubmitButton').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูลปฏิบัติงานปกติ';
+            document.getElementById('otSubmitButton').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูล OT';
+
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dutyDate').value = today;
+            document.getElementById('otDate').value = today;
+            toggleRegTimeMode();
+            toggleOtTimeMode();
+
+            if (currentUser && currentUser.role !== 'admin') {
+                document.querySelectorAll('.staff-select-options').forEach(select => {
+                    select.value = currentUser.name;
+                });
+            }
+        }
+
+        function cancelRecordEdit() {
+            resetRecordForms();
+            Swal.fire({ icon: 'info', title: 'ยกเลิกการแก้ไขแล้ว', timer: 1000, showConfirmButton: false });
+        }
+
+        function editRecord(id) {
+            const records = JSON.parse(localStorage.getItem('appRecords')) || [];
+            const record = records.find(r => String(r.id) === String(id));
+            if (!record) {
+                Swal.fire({ icon: 'error', title: 'ไม่พบรายการ', text: 'กรุณาดึงข้อมูลล่าสุดจาก Google Sheets แล้วลองอีกครั้ง' });
+                return;
+            }
+
+            resetRecordForms();
+            editingRecordId = String(record.id);
+            const hours = Number(record.hours) || 0;
+
+            if (record.type === 'ot') {
+                document.getElementById('otDate').value = String(record.date || '').substring(0, 10);
+                setSelectValue('otStaffName', String(record.staffName || ''));
+                setSelectValue('otCounter', String(record.counter || ''));
+
+                const presetByHours = { '2.5': 'norm_weekday', '7': 'norm_weekend', '5.5': 'exam_weekday', '10.5': 'exam_weekend' };
+                const preset = presetByHours[String(hours)];
+                if (preset) {
+                    document.querySelector(`input[name="otPreset"][value="${preset}"]`).checked = true;
+                } else {
+                    document.querySelector('input[name="otPreset"][value="custom"]').checked = true;
+                    setCustomDuration('otStartTime', 'otEndTime', hours);
+                }
+
+                document.getElementById('otEditNotice').classList.remove('hidden');
+                document.getElementById('otEditNotice').classList.add('flex');
+                document.getElementById('otSubmitButton').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> บันทึกการแก้ไข OT';
+                toggleOtTimeMode();
+                switchTab('ot');
+            } else {
+                document.getElementById('dutyDate').value = String(record.date || '').substring(0, 10);
+                setSelectValue('staffName', String(record.staffName || ''));
+                setSelectValue('counterLocation', String(record.counter || ''));
+
+                const slotMap = {
+                    '1': ['slotNoon'],
+                    '3.5': ['slotMorning'],
+                    '4.5': ['slotMorning', 'slotNoon'],
+                    '7': ['slotMorning', 'slotAfternoon'],
+                    '8': ['slotMorning', 'slotNoon', 'slotAfternoon']
+                };
+                const slots = slotMap[String(hours)];
+                if (slots) {
+                    document.querySelector('input[name="regTimeType"][value="preset"]').checked = true;
+                    slots.forEach(slotId => document.getElementById(slotId).checked = true);
+                    handleSubSlotChange();
+                } else {
+                    document.querySelector('input[name="regTimeType"][value="custom"]').checked = true;
+                    setCustomDuration('regStartTime', 'regEndTime', hours);
+                }
+
+                document.getElementById('regularEditNotice').classList.remove('hidden');
+                document.getElementById('regularEditNotice').classList.add('flex');
+                document.getElementById('regularSubmitButton').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> บันทึกการแก้ไข';
+                toggleRegTimeMode();
+                switchTab('record');
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function renderHistoryTable() {
             const records = JSON.parse(localStorage.getItem('appRecords')) || [];
             const search = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
@@ -1351,8 +1536,9 @@
                     <td class="py-3 px-4 text-slate-600">${r.counter}</td>
                     <td class="py-3 px-4 text-center font-bold">${r.hours} ชม.</td>
                     <td class="py-3 px-4 text-center text-emerald-700 font-semibold">${r.pay ? r.pay + ' ฿' : '-'}</td>
-                    <td class="py-3 px-4 text-center">
-                        <button onclick="deleteRecord('${r.id}')" class="text-rose-600 hover:text-rose-800 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                    <td class="py-3 px-4 text-center whitespace-nowrap">
+                        <button onclick="editRecord('${r.id}')" class="text-blue-600 hover:text-blue-800 p-1" title="แก้ไขรายการ"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteRecord('${r.id}')" class="text-rose-600 hover:text-rose-800 p-1" title="ลบรายการ"><i class="fa-solid fa-trash-can"></i></button>
                     </td>
                 </tr>
             `}).join('');
